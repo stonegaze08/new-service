@@ -17,7 +17,7 @@ export default {
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta property="og:title" content="Zulna" />
       <meta property="og:description" content="Service tools" />
-      <link rel="shortcut icon" href="LOGO1.png" type="image/x-icon"></link>
+      <link rel="shortcut icon" href="/public/LOGO1.png" type="image/x-icon"></link>
     </>
   ),
   logo: (

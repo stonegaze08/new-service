@@ -16,10 +16,10 @@ This guide is created under the assumption you are using Ubuntu 22.04 LTS
 If you use other OS, please modify the commands accordingly
 
 ```js copy
-export INSTALLATION_DIR=$HOME/appl
+export INSTALLATION_DIR=${HOME}/appl
 export DAEMON_NAME=crossfid
-export DAEMON_HOME=${INSTALLATION_DIR}/testnet
-export SERVICE_NAME=crossfi-testnet
+export DAEMON_HOME=${HOME}/.mineplex-chain
+export SERVICE_NAME=crossfi-mainnet
 export MONIKER="YOUR_NODE_NAME_HERE"
 export WALLET="YOUR_WALLET_NAME_HERE"
 ```
@@ -42,12 +42,15 @@ source ~/.profile
 ### Install dependencies
 
 ```js copy
-console.log('hello, world')
+sudo apt -q update
+sudo apt -qy install curl git jq lz4 build-essential snapd unzip nginx
+sudo apt -qy upgrade
 ```
 
 ### Prepare installation
 
 ```js copy
+mkdir -p ${INSTALLATION_DIR}/bin
 mkdir -p ${DAEMON_HOME}/cosmovisor/genesis/bin
 mkdir -p ${DAEMON_HOME}/cosmovisor/upgrades
 ```
@@ -58,18 +61,17 @@ mkdir -p ${DAEMON_HOME}/cosmovisor/upgrades
 cd ${INSTALLATION_DIR}
 
 #Download CrossFi Daemon and basic setup
-wget https://github.com/crossfichain/crossfi-node/releases/download/v0.3.0-prebuild3/crossfi-node_0.3.0-prebuild3_linux_amd64.tar.gz
-tar -xf crossfi-node_0.3.0-prebuild3_linux_amd64.tar.gz
-git clone https://github.com/crossfichain/testnet.git
+wget https://github.com/crossfichain/crossfi-node/releases/download/v0.1.1/mineplex-2-node._v0.1.1_linux_amd64.tar.gz && tar -xf mineplex-2-node._v0.1.1_linux_amd64.tar.gz
+mv mineplex-chaind bin/${DAEMON_NAME}
+git clone https://github.com/crossfichain/mainnet.git
 
 #Download and install cosmovisor
 wget https://github.com/cosmos/cosmos-sdk/releases/download/cosmovisor%2Fv1.5.0/cosmovisor-v1.5.0-linux-amd64.tar.gz
 tar -xvzf cosmovisor-v1.5.0-linux-amd64.tar.gz
 
 #Copy Binaries
-cp cosmovisor ${INSTALLATION_DIR}/bin/cosmovisor
+cp cosmovisor /usr/local/bin/cosmovisor -f
 cp ${INSTALLATION_DIR}/bin/${DAEMON_NAME} ${DAEMON_HOME}/cosmovisor/genesis/bin
-sudo ln -s ${INSTALLATION_DIR}/bin/cosmovisor /usr/local/bin/cosmovisor -f
 sudo ln -s ${DAEMON_HOME}/cosmovisor/genesis ${DAEMON_HOME}/cosmovisor/current -f
 sudo ln -s ${DAEMON_HOME}/cosmovisor/current/bin/${DAEMON_NAME} /usr/local/bin/${DAEMON_NAME} -f
 ```
@@ -113,9 +115,9 @@ sed -i \
 ### Setting up Cosmovisor
 
 ```js copy
-sudo tee /etc/systemd/system/crossfi-testnet.service > /dev/null <<EOF  
+sudo tee /etc/systemd/system/crossfi-mainnet.service > /dev/null <<EOF  
 [Unit]
-Description=CrossFi Testnet Daemon (cosmovisor)
+Description=CrossFi Mainnet Daemon (cosmovisor)
 After=network-online.target
 
 [Service]
@@ -139,15 +141,14 @@ EOF
 
 ```js copy
 sudo systemctl daemon-reload
-sudo systemctl enable crossfi-testnet.service
-sudo systemctl start crossfi-testnet.service
+sudo systemctl enable crossfi-mainnet.service
+sudo systemctl start crossfi-mainnet.service
 ```
 
 ### Check service log
 
 ```js copy
-sudo journalctl -xfu crossfi-testnet
-```
+sudo journalctl -xfu crossfi-mainnet
 
 
 
