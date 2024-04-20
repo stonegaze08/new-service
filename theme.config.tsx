@@ -17,9 +17,17 @@ export default {
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta property="og:title" content="Zulna" />
       <meta property="og:description" content="Service tools" />
+      <link rel="shortcut icon" href="LOGO1.png" type="image/x-icon"></link>
     </>
   ),
-  logo: <span>ZLN Docs</span>,
+  logo: (
+    <>
+      <img height="25" width="31" src="/LOGO-color.png" alt=""></img>
+      <span style={{ marginLeft: '.2em', fontWeight: 600, fontSize:25 }}>
+       ZulnA Docs
+      </span>
+    </>
+  ),
   banner: {
     key: '2.0-release',
     text: (
