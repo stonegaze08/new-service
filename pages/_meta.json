@@ -1,0 +1,24 @@
+{
+    "index": {
+      "title": "HOME",
+      "type": "page"
+    },
+    "mainnet": {
+      "title": "MAINNET",
+      "type": "page"
+    },
+    "testnet": {
+      "title": "TESTNET",
+      "type": "page"
+    },
+    "guide": {
+      "title": "GUIDE",
+      "type": "page"
+    },
+    "explorer": {
+        "title": "EXPLORER ↗",
+        "type": "page",
+        "href": "https://explorer.zulnaaa.com",
+        "newWindow": true
+  }
+}
