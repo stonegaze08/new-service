@@ -17,12 +17,12 @@ export default {
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta property="og:title" content="Zulna" />
       <meta property="og:description" content="Service tools" />
-      <link rel="shortcut icon" href="logo-fav-back.png" type="image/x-icon"></link>
+      <link rel="shortcut icon" href="/logo-fav-back.png" type="image/x-icon"></link>
     </>
   ),
   logo: (
     <>
-      <img height="25" width="31" src="logo-noback.png" alt=""></img>
+      <img height="25" width="31" src="/logo-noback.png" alt=""></img>
       <span style={{ marginLeft: '.2em', fontWeight: 600, fontSize:25 }}>
        ZulnA Docs
       </span>
