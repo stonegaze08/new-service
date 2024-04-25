@@ -1,3 +1,5 @@
+import { Callout } from 'nextra/components'
+
 ## Setup Server
 
 ### Update Packages and Install Prerequisites
@@ -49,3 +51,75 @@ make install
 sided config chain-id side-testnet-3
 sided config keyring-backend file
 ```
+
+### Init your node
+
+<Callout type="info" emoji="ℹ️">
+  You can change "MyNode" to anything you like
+</Callout>
+
+```js copy
+sided init MyNode --chain-in side-testnet-3
+```
+
+### Add Genesis File and Addrbook
+
+```js copy
+curl -Ls https://snapshots.indonode.net/side-t/genesis.json > $HOME/.side/config/genesis.json
+curl -Ls https://snapshots.indonode.net/side-t/addrbook.json > $HOME/.side/config/addrbook.json
+```
+### Configure Seeds and Peers
+
+```js copy
+PEERS="$(curl -sS https://rpc.side-t.indonode.net:443/net_info | jq -r '.result.peers[] | "(.node_info.id)@(.remote_ip):(.node_info.listen_addr)"' | awk -F ':' '{print $1":"$(NF)}' | sed -z 's|
+|,|g;s|.$||')"
+sed -i -e "s|^persistent_peers *=.*|persistent_peers = "$PEERS"|" $HOME/.side/config/config.toml
+```
+
+### Set Pruning, Enable Prometheus, Gas Prices, and Indexer
+
+```js copy
+PRUNING="custom"
+PRUNING_KEEP_RECENT="100"
+PRUNING_INTERVAL="19"
+
+sed -i -e "s/^pruning *=.*/pruning = "$PRUNING"/" $HOME/.side/config/app.toml
+sed -i -e "s/^pruning-keep-recent *=.*/pruning-keep-recent = "$PRUNING_KEEP_RECENT"/" $HOME/.side/config/app.toml
+sed -i -e "s/^pruning-interval *=.*/pruning-interval = "$PRUNING_INTERVAL"/" $HOME/.side/config/app.toml
+sed -i 's|^prometheus *=.*|prometheus = true|' $HOME/.side/config/config.toml
+```
+
+###  Set Service file
+
+```js copy
+sudo tee /etc/systemd/system/sided.service > /dev/null <<EOF
+[Unit]
+Description=side testnet node
+After=network-online.target
+[Service]
+User=$USER
+ExecStart=$(which sided) start
+Restart=always
+RestartSec=3
+LimitNOFILE=65535
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload
+sudo systemctl enable sided
+```
+### Download Latest Snapshot
+
+```js copy
+curl -L https://snapshots.indonode.net/side-t/side-t-latest.tar.lz4 | tar -Ilz4 -xf - -C $HOME/.side
+[[ -f $HOME/.side/data/upgrade-info.json ]] && cp $HOME/.side/data/upgrade-info.json $HOME/.side/cosmovisor/genesis/upgrade-info.json
+```
+
+### Start the Node
+
+```js copy
+sudo systemctl restart sided
+sudo journalctl -fu sided -o cat
+```
+
+
