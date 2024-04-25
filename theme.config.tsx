@@ -56,6 +56,7 @@ export default {
   },
   footer: {
     text: (
+      
       <span>
         {new Date().getFullYear()} ©{' '}
         <a href="https://github.com/zulna10" target="_blank">
