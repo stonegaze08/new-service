@@ -1,2 +1,20 @@
+import Image from 'next/image'
+
+
 
 Side Protocol is a full-stack and omnichain exchange infrastructure that offers dedicated infrastructure, tools, and applications for decentralized asset exchange.
+
+## NETWORK Information
+<table>
+  <tbody>
+    {[
+      { country: 'VERSION', flag: 'CHAIN ID' },
+      { country: 'v0.7.0', flag: 'side-testnet-3' }
+    ].map(item => (
+      <tr key={item.country}>
+        <td>{item.country}</td>
+        <td>{item.flag}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
