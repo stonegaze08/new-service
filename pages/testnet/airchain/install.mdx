@@ -140,4 +140,71 @@ sudo systemctl enable junctiond
 sudo systemctl restart junctiond && sudo journalctl -u junctiond -f
 ```
 
+## Create Wallet
+
+#### create a new wallet
+```js copy
+junctiond keys add $WALLET
+```
+#### restore exexuting wallet
+```js copy
+junctiond keys add $WALLET --recover
+```
+### save wallet and validator address
+```js copy
+WALLET_ADDRESS=$(junctiond keys show $WALLET -a)
+VALOPER_ADDRESS=$(junctiond keys show $WALLET --bech val -a)
+echo "export WALLET_ADDRESS="$WALLET_ADDRESS >> $HOME/.bash_profile
+echo "export VALOPER_ADDRESS="$VALOPER_ADDRESS >> $HOME/.bash_profile
+source $HOME/.bash_profile
+```
+
+### check sync status
+```js copy
+junctiond status 2>&1 | jq 
+```
+### chechk balance
+before creating a validator, you need to fund your wallet and check balance
+```js copy
+junctiond query bank balances $WALLET_ADDRESS 
+```
+
+## Create Validator
+<Callout type="info" emoji="ℹ️">
+change all details
+</Callout>
+```js copy
+junctiond tx staking create-validator \
+--amount 1000000amf \
+--from $WALLET \
+--commission-rate 0.1 \
+--commission-max-rate 0.2 \
+--commission-max-change-rate 0.01 \
+--min-self-delegation 1 \
+--pubkey $(junctiond tendermint show-validator) \
+--moniker "$MONIKER" \
+--identity "your identity" \
+--details "guide from service.zulnaaa.com" \
+--chain-id junction \
+--fees 200amf \
+-y 
+```
+## Firewall security
+```js copy
+sudo ufw default allow outgoing 
+sudo ufw default deny incoming 
+sudo ufw allow ssh/tcp 
+sudo ufw allow ${AIRCHAIN_PORT}656/tcp
+sudo ufw enable
+```
+
+## Delete node
+sudo systemctl stop junctiond
+sudo systemctl disable junctiond
+sudo rm -rf /etc/systemd/system/junctiond.service
+sudo rm $(which junctiond)
+sudo rm -rf $HOME/.junction
+sed -i "/AIRCHAIN_/d" $HOME/.bash_profile
+```
+
 </Steps>
