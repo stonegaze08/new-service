@@ -143,14 +143,18 @@ sudo systemctl restart junctiond && sudo journalctl -u junctiond -f
 ## Create Wallet
 
 #### create a new wallet
+
 ```js copy
 junctiond keys add $WALLET
 ```
 #### restore exexuting wallet
+
 ```js copy
 junctiond keys add $WALLET --recover
 ```
+
 ### save wallet and validator address
+
 ```js copy
 WALLET_ADDRESS=$(junctiond keys show $WALLET -a)
 VALOPER_ADDRESS=$(junctiond keys show $WALLET --bech val -a)
@@ -160,11 +164,15 @@ source $HOME/.bash_profile
 ```
 
 ### check sync status
+
 ```js copy
 junctiond status 2>&1 | jq 
 ```
+
 ### chechk balance
+
 before creating a validator, you need to fund your wallet and check balance
+
 ```js copy
 junctiond query bank balances $WALLET_ADDRESS 
 ```
@@ -191,7 +199,9 @@ junctiond tx staking create-validator \
 --fees 200amf \
 -y 
 ```
+
 ## Firewall security
+
 ```js copy
 sudo ufw default allow outgoing 
 sudo ufw default deny incoming 
@@ -201,6 +211,8 @@ sudo ufw enable
 ```
 
 ## Delete node
+
+```js copy
 sudo systemctl stop junctiond
 sudo systemctl disable junctiond
 sudo rm -rf /etc/systemd/system/junctiond.service
