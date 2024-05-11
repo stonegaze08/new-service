@@ -1,0 +1,143 @@
+import { Callout } from 'nextra/components'
+import { Steps } from 'nextra/components'
+
+# Manual installation
+
+<Steps>
+
+### install dependencies
+
+```js copy
+sudo apt update && sudo apt upgrade -y
+sudo apt install curl git wget htop tmux build-essential jq make lz4 gcc unzip -y
+```
+
+### install go
+
+```js copy
+cd $HOME
+VER="1.21.6"
+wget "https://golang.org/dl/go$VER.linux-amd64.tar.gz"
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf "go$VER.linux-amd64.tar.gz"
+rm "go$VER.linux-amd64.tar.gz"
+[ ! -f ~/.bash_profile ] && touch ~/.bash_profile
+echo "export PATH=$PATH:/usr/local/go/bin:~/go/bin" >> ~/.bash_profile
+source $HOME/.bash_profile
+[ ! -d ~/go/bin ] && mkdir -p ~/go/bin
+```
+
+### set vars
+
+<Callout type="info" emoji="ℹ️">
+change name  wallet and moniker 
+</Callout>
+```js copy
+echo "export WALLET="your-wallet"" >> $HOME/.bash_profile
+echo "export MONIKER="your-moniker"" >> $HOME/.bash_profile
+echo "export AIRCHAIN_CHAIN_ID="junction"" >> $HOME/.bash_profile
+echo "export AIRCHAIN_PORT="19"" >> $HOME/.bash_profile
+source $HOME/.bash_profile
+```
+
+### dwonload binary
+```js copy
+cd $HOME
+wget -O junctiond https://github.com/airchains-network/junction/releases/download/v0.1.0/junctiond
+chmod +x junctiond
+mv junctiond $HOME/go/bin/
+
+```
+
+### config and init app
+
+```js copy
+junctiond init $MONIKER --chain-id $AIRCHAIN_CHAIN_ID 
+sed -i -e "s|^node *=.*|node = \"tcp://localhost:${AIRCHAIN_PORT}657\"|" $HOME/.junction//config/client.toml
+```
+
+### download genesis and addrbook
+```js copy
+wget -O $HOME/.junction/config/genesis.json https://testnet-files.itrocket.net/airchains/genesis.json
+wget -O $HOME/.junction/config/addrbook.json https://testnet-files.itrocket.net/airchains/addrbook.json
+```
+
+### set seeds and peers
+```js copy
+SEEDS="04e2fdd6ec8f23729f24245171eaceae5219aa91@airchains-testnet-seed.itrocket.net:19656"
+PEERS="47f61921b54a652ca5241e2a7fc4ed8663091e89@airchains-testnet-peer.itrocket.net:19656,aeaf101d54d47f6c99b4755983b64e8504f6132d@65.21.202.124:28656,df2a56a208821492bd3d04dd2e91672657c79325@158.220.126.137:27656,82af620ee9eeb2d2902ae66188eb4aa163ca8562@135.181.35.159:63656,c2e70f94ed3f7fa027ffad7f051c4d4688be1ee6@195.26.255.211:10056,264493e01774cccdb9baabee4af7146acbec67f2@65.21.193.80:63656,e3f6f7701541bd2ea183a34b061e33bfaf69ae3d@144.91.69.202:63656,613a65fe67918a5912f0cc22ef535ed1a8f0e824@65.109.112.148:4476"
+sed -i -e "s/^seeds *=.*/seeds = \"$SEEDS\"/; s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" $HOME/.junction/config/config.toml
+```
+
+### set custom ports in app.toml
+
+```js copy
+sed -i.bak -e "s%:1317%:${AIRCHAIN_PORT}317%g;
+s%:8080%:${AIRCHAIN_PORT}080%g;
+s%:9090%:${AIRCHAIN_PORT}090%g;
+s%:9091%:${AIRCHAIN_PORT}091%g;
+s%:8545%:${AIRCHAIN_PORT}545%g;
+s%:8546%:${AIRCHAIN_PORT}546%g;
+s%:6065%:${AIRCHAIN_PORT}065%g" $HOME/.junction/config/app.toml
+```
+
+### set custom ports in config.toml file
+```js copy
+sed -i.bak -e "s%:26658%:${AIRCHAIN_PORT}658%g;
+s%:26657%:${AIRCHAIN_PORT}657%g;
+s%:6060%:${AIRCHAIN_PORT}060%g;
+s%:26656%:${AIRCHAIN_PORT}656%g;
+s%^external_address = \"\"%external_address = \"$(wget -qO- eth0.me):${AIRCHAIN_PORT}656\"%;
+s%:26660%:${AIRCHAIN_PORT}660%g" $HOME/.junction/config/config.toml
+```
+
+### config pruning
+```js copy
+sed -i -e "s/^pruning *=.*/pruning = \"custom\"/" $HOME/.junction/config/app.toml
+sed -i -e "s/^pruning-keep-recent *=.*/pruning-keep-recent = \"100\"/" $HOME/.junction/config/app.toml
+sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"50\"/" $HOME/.junction/config/app.toml
+```
+### set minimum gas price, enable prometheus and disable indexing
+```js copy
+sed -i 's|minimum-gas-prices =.*|minimum-gas-prices = "0.001amf"|g' $HOME/.junction/config/app.toml
+sed -i -e "s/prometheus = false/prometheus = true/" $HOME/.junction/config/config.toml
+sed -i -e "s/^indexer *=.*/indexer = \"null\"/" $HOME/.junction/config/config.toml
+```
+
+### create service file
+```js copy
+sudo tee /etc/systemd/system/junctiond.service > /dev/null <<EOF
+[Unit]
+Description=Airchains node
+After=network-online.target
+[Service]
+User=$USER
+WorkingDirectory=$HOME/.junction
+ExecStart=$(which junctiond) start --home $HOME/.junction
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65535
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+### reset and download snapshot
+
+```js copy
+junctiond tendermint unsafe-reset-all --home $HOME/.junction
+if curl -s --head curl https://testnet-files.itrocket.net/airchains/snap_airchains.tar.lz4 | head -n 1 | grep "200" > /dev/null; then
+  curl https://testnet-files.itrocket.net/airchains/snap_airchains.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.junction
+    else
+  echo no have snap
+fi
+```
+
+### enable and start service
+```js copy
+sudo systemctl daemon-reload
+sudo systemctl enable junctiond
+sudo systemctl restart junctiond && sudo journalctl -u junctiond -f
+```
+
+</Steps>
