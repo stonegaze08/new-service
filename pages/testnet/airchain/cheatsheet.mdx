@@ -40,7 +40,7 @@ junctiond tx staking create-validator \
 --details "your-details" \
 --website "your-website" \
 --security-contact "your-email" \
---chain-id crossfi-evm-testnet-1 \
+--chain-id junction \
 --commission-rate 0.05 \
 --commission-max-rate 0.20 \
 --commission-max-change-rate 0.01 \
@@ -59,7 +59,7 @@ junctiond tx staking edit-validator \
 --details "your-details" \
 --website "your-website" \
 --security-contact "your-email" \
---chain-id crossfi-evm-testnet-1 \
+--chain-id junction \
 --commission-rate 0.05 \
 --from wallet \
 --gas-adjustment 1.5 \
@@ -69,7 +69,7 @@ junctiond tx staking edit-validator \
 ```
 
 ```js filename="Unjail validator"
-junctiond tx slashing unjail --from wallet --chain-id crossfi-evm-testnet-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+junctiond tx slashing unjail --from wallet --chain-id junction --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
 ```
 
 ```js filename="Validator jail reason"
@@ -88,25 +88,25 @@ junctiond q staking validator $(junctiond keys show wallet --bech val -a)
 ## Managing Tokens
 
 ```js filename="Withdraw reward from all validator"
-junctiond tx distribution withdraw-all-rewards --from wallet --chain-id crossfi-evm-testnet-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+junctiond tx distribution withdraw-all-rewards --from wallet --chain-id junction --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
 ```
 ```js filename="Withdraw reward and commission"
-junctiond tx distribution withdraw-rewards $(junctiond keys show wallet --bech val -a) --commission --from wallet --chain-id crossfi-evm-testnet-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+junctiond tx distribution withdraw-rewards $(junctiond keys show wallet --bech val -a) --commission --from wallet --chain-id junction --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
 ```
 ```js filename="Delegate tokens to your validator"
-junctiond tx staking delegate $(junctiond keys show wallet --bech val -a) 1000000000000000000mpx --from wallet --chain-id crossfi-evm-testnet-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+junctiond tx staking delegate $(junctiond keys show wallet --bech val -a) 1000000000000000000mpx --from wallet --chain-id junction --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
 ```
 ```js filename="Delegate token to other validator, change <to-valoper-address> as you like"
-junctiond tx staking delegate <to-valoper-address> 1000000000000000000mpx --from wallet --chain-id crossfi-evm-testnet-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+junctiond tx staking delegate <to-valoper-address> 1000000000000000000mpx --from wallet --chain-id junction --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
 ```
 ```js filename="Redelegate to another validator"
-junctiond tx staking redelegate $(junctiond keys show wallet --bech val -a) <to-valoper-address> 1000000000000000000mpx --from wallet --chain-id crossfi-evm-testnet-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+junctiond tx staking redelegate $(junctiond keys show wallet --bech val -a) <to-valoper-address> 1000000000000000000mpx --from wallet --chain-id junction --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
 ```
 ```js filename="Unbond token from your own validator"
-junctiond tx staking unbond $(junctiond keys show wallet --bech val -a) 1000000000000000000mpx --from wallet --chain-id crossfi-evm-testnet-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+junctiond tx staking unbond $(junctiond keys show wallet --bech val -a) 1000000000000000000mpx --from wallet --chain-id junction --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
 ```
 ```js filename="Send token to the wallet"
-junctiond tx bank send wallet <to-wallet-address> 1000000000000000000mpx --from wallet --chain-id crossfi-evm-testnet-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+junctiond tx bank send wallet <to-wallet-address> 1000000000000000000mpx --from wallet --chain-id junction --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
 ```
 ## Governance
 
@@ -117,16 +117,16 @@ junctiond query gov proposals
 junctiond query gov proposal 1
 ```
 ```js filename="Vote option yes"
-junctiond tx gov vote 1 yes --from wallet --chain-id crossfi-evm-testnet-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+junctiond tx gov vote 1 yes --from wallet --chain-id junction --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
 ```
 ```js filename="Vote option no"
-junctiond tx gov vote 1 no --from wallet --chain-id crossfi-evm-testnet-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+junctiond tx gov vote 1 no --from wallet --chain-id junction --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
 ```
 ```js filename="Vote option asbtain"
-junctiond tx gov vote 1 abstain --from wallet --chain-id crossfi-evm-testnet-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+junctiond tx gov vote 1 abstain --from wallet --chain-id junction --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
 ```
 ```js filename="Vote option NoWithVeto"
-junctiond tx gov vote 1 NoWithVeto --from wallet --chain-id crossfi-evm-testnet-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+junctiond tx gov vote 1 NoWithVeto --from wallet --chain-id junction --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
 ```
 
 ## Usefulness
