@@ -56,7 +56,8 @@ export default {
   },
   sidebar:{
     defaultMenuCollapseLevel: 1
-  },
+},
+
   footer: {
     text: (
       

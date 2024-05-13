@@ -1,6 +1,16 @@
 {
     "overview":"OVERVIEW",
+    "--": {
+        "type": "separator",
+        "title": "COMING SOON"
+    },
     "arcium":"Arcium",
+    "juneo":"Juneo",
+
+    "---": {
+        "type": "separator",
+        "title": "ACTIVE"
+    },
     "airchain":"Airchain",
     "crossfi":"Crossfi",
     "nulink":"Nulink",
