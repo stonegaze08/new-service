@@ -8,125 +8,118 @@ A Tendermint cheat sheet is a quick reference for essential commands to control 
 ## Managing keys
 
 ```js filename="Generate new key"
-wardend keys add wallet
+initiad keys add wallet
 ```
 
 ```js filename="Recover key"
-wardend keys add wallet --recover
+initiad keys add wallet --recover
 ```
 ```js filename="List all key"
-wardend keys list
+initiad keys list
 ```
 ```js filename="Delete key"
-wardend keys delete wallet
+initiad keys delete wallet
 ```
 ```js filename="Export key"
-wardend keys export wallet
+initiad keys export wallet
 ```
 ```js filename="Import key"
-wardend keys import wallet wallet.backup
+initiad keys import wallet wallet.backup
 ```
 ```js filename="Query wallet balances"
-wardend q bank balances $(wardend keys show wallet -a)
+initiad q bank balances $(initiad keys show wallet -a)
 ```
 
 ## Managing validators
 ```js filename="Create validator"
-wardend tx staking create-validator \
---amount 1000000000000000000mpx \
---pubkey $(wardend tendermint show-validator) \
---moniker "your-moniker-name" \
---identity "your-keybase-id" \
---details "your-details" \
---website "your-website" \
---security-contact "your-email" \
---chain-id buenavista-1 \
---commission-rate 0.05 \
---commission-max-rate 0.20 \
+initiad tx mstaking create-validator \
+--amount 1000000uinit \
+--from $WALLET \
+--commission-rate 0.1 \
+--commission-max-rate 0.2 \
 --commission-max-change-rate 0.01 \
 --min-self-delegation 1 \
---from wallet \
---gas-adjustment 1.5 \
---gas auto \
---gas-prices 10000000000000mpx \
+--pubkey $(initiad tendermint show-validator) \
+--moniker "YOUR-MONIKER" \
+--identity "" \
+--website "" \
+--details "Service by zulna" \
+--chain-id initiation-1 \
+--gas auto --fees 80000uinit \
 -y
 ```
 
 ```js filename="Edit validator"
-wardend tx staking edit-validator \
---new-moniker "your-moniker-name" \
---identity "your-keybase-id" \
---details "your-details" \
---website "your-website" \
---security-contact "your-email" \
---chain-id buenavista-1 \
---commission-rate 0.05 \
---from wallet \
---gas-adjustment 1.5 \
---gas auto \
---gas-prices 10000000000000mpx \
+initiad tx mstaking edit-validator \
+--commission-rate 0.1 \
+--new-moniker "$MONIKER" \
+--identity "" \
+--details "Service by zulna" \
+--from $WALLET \
+--chain-id initiation-1 \
+--gas auto --fees 80000uinit \
 -y
 ```
 
 ```js filename="Unjail validator"
-wardend tx slashing unjail --from wallet --chain-id buenavista-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+initiad tx slashing unjail --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
 ```
 
 ```js filename="Validator jail reason"
-wardend query slashing signing-info $(wardend tendermint show-validator)
+initiad query slashing signing-info $(initiad tendermint show-validator)
 ```
 ```js filename="List active validator"
-wardend q staking validators -oj --limit=3000 | jq '.validators[] | select(.status=="BOND_STATUS_BONDED")' | jq -r '(.tokens|tonumber/pow(10; 6)|floor|tostring) + " \t " + .description.moniker' | sort -gr | nl
+initiad q staking validators -oj --limit=3000 | jq '.validators[] | select(.status=="BOND_STATUS_BONDED")' | jq -r '(.tokens|tonumber/pow(10; 6)|floor|tostring) + " \t " + .description.moniker' | sort -gr | nl
 ```
 ```js filename="List incative validator"
-wardend q staking validators -oj --limit=3000 | jq '.validators[] | select(.status=="BOND_STATUS_UNBONDED")' | jq -r '(.tokens|tonumber/pow(10; 6)|floor|tostring) + " \t " + .description.moniker' | sort -gr | nl
+initiad q staking validators -oj --limit=3000 | jq '.validators[] | select(.status=="BOND_STATUS_UNBONDED")' | jq -r '(.tokens|tonumber/pow(10; 6)|floor|tostring) + " \t " + .description.moniker' | sort -gr | nl
 ```
 ```js filename="View validator details"
-wardend q staking validator $(wardend keys show wallet --bech val -a)
+initiad q staking validator $(initiad keys show wallet --bech val -a)
 ```
 
 ## Managing Tokens
 
 ```js filename="Withdraw reward from all validator"
-wardend tx distribution withdraw-all-rewards --from wallet --chain-id buenavista-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+initiad tx distribution withdraw-all-rewards --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
 ```
 ```js filename="Withdraw reward and commission"
-wardend tx distribution withdraw-rewards $(wardend keys show wallet --bech val -a) --commission --from wallet --chain-id buenavista-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+initiad tx distribution withdraw-rewards $(initiad keys show wallet --bech val -a) --commission --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
 ```
 ```js filename="Delegate tokens to your validator"
-wardend tx staking delegate $(wardend keys show wallet --bech val -a) 1000000000000000000mpx --from wallet --chain-id buenavista-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+initiad tx staking delegate $(initiad keys show wallet --bech val -a) 1000000000000000000mpx --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
 ```
 ```js filename="Delegate token to other validator, change <to-valoper-address> as you like"
-wardend tx staking delegate <to-valoper-address> 1000000000000000000mpx --from wallet --chain-id buenavista-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+initiad tx staking delegate <to-valoper-address> 1000000000000000000mpx --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
 ```
 ```js filename="Redelegate to another validator"
-wardend tx staking redelegate $(wardend keys show wallet --bech val -a) <to-valoper-address> 1000000000000000000mpx --from wallet --chain-id buenavista-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+initiad tx staking redelegate $(initiad keys show wallet --bech val -a) <to-valoper-address> 1000000000000000000mpx --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
 ```
 ```js filename="Unbond token from your own validator"
-wardend tx staking unbond $(wardend keys show wallet --bech val -a) 1000000000000000000mpx --from wallet --chain-id buenavista-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+initiad tx staking unbond $(initiad keys show wallet --bech val -a) 1000000000000000000mpx --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
 ```
 ```js filename="Send token to the wallet"
-wardend tx bank send wallet <to-wallet-address> 1000000000000000000mpx --from wallet --chain-id buenavista-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+initiad tx bank send wallet <to-wallet-address> 1000000000000000000mpx --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
 ```
 ## Governance
 
 ```js filename="Query list proposal"
-wardend query gov proposals
+initiad query gov proposals
 ```
 ```js filename="View proposal by ID"
-wardend query gov proposal 1
+initiad query gov proposal 1
 ```
 ```js filename="Vote option yes"
-wardend tx gov vote 1 yes --from wallet --chain-id buenavista-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+initiad tx gov vote 1 yes --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
 ```
 ```js filename="Vote option no"
-wardend tx gov vote 1 no --from wallet --chain-id buenavista-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+initiad tx gov vote 1 no --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
 ```
 ```js filename="Vote option asbtain"
-wardend tx gov vote 1 abstain --from wallet --chain-id buenavista-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+initiad tx gov vote 1 abstain --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
 ```
 ```js filename="Vote option NoWithVeto"
-wardend tx gov vote 1 NoWithVeto --from wallet --chain-id buenavista-1 --gas-adjustment 1.5 --gas auto --gas-prices 10000000000000mpx -y
+initiad tx gov vote 1 NoWithVeto --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
 ```
 
 ## Usefulness
@@ -154,16 +147,16 @@ sed -i \
 ## Maintenance
 
 ```js filename="Get validator information"
-wardend status 2>&1 | jq .ValidatorInfo
+initiad status 2>&1 | jq .ValidatorInfo
 ```
 ```js filename="Get sync information"
-wardend status 2>&1 | jq .SyncInfo
+initiad status 2>&1 | jq .SyncInfo
 ```
 ```js filename="Get node peer"
-echo $(wardend tendermint show-node-id)'@'$(curl -s ifconfig.me)':'$(cat $HOME/.mineplex-chain/config/config.toml | sed -n '/Address to listen for incoming connection/{n;p;}' | sed 's/.*://; s/".*//')
+echo $(initiad tendermint show-node-id)'@'$(curl -s ifconfig.me)':'$(cat $HOME/.mineplex-chain/config/config.toml | sed -n '/Address to listen for incoming connection/{n;p;}' | sed 's/.*://; s/".*//')
 ```
 ```js filename="Check validator keys"
-[[ $(wardend q staking validator $(wardend keys show wallet --bech val -a) -oj | jq -r .consensus_pubkey.key) = $(wardend status | jq -r .ValidatorInfo.PubKey.value) ]] && echo -e "\n\e[1m\e[32mTrue\e[0m\n" || echo -e "\n\e[1m\e[31mFalse\e[0m\n"
+[[ $(initiad q staking validator $(initiad keys show wallet --bech val -a) -oj | jq -r .consensus_pubkey.key) = $(initiad status | jq -r .ValidatorInfo.PubKey.value) ]] && echo -e "\n\e[1m\e[32mTrue\e[0m\n" || echo -e "\n\e[1m\e[31mFalse\e[0m\n"
 ```
 ```js filename="Get live peers"
 curl -sS http://localhost:23957/net_info | jq -r '.result.peers[] | "\(.node_info.id)@\(.remote_ip):\(.node_info.listen_addr)"' | awk -F ':' '{print $1":"$(NF)}'
@@ -175,13 +168,13 @@ sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"10mpx\"/" $HOME/.mi
 sed -i -e "s/prometheus = false/prometheus = true/" $HOME/.mineplex-chain/config/config.toml
 ```
 ```js filename="Reset chain data"
-wardend tendermint unsafe-reset-all --keep-addr-book --home $HOME/.mineplex-chain --keep-addr-book
+initiad tendermint unsafe-reset-all --keep-addr-book --home $HOME/.mineplex-chain --keep-addr-book
 ```
 ```js filename="Remove node"
-sudo systemctl stop wardend
-sudo systemctl disable wardend
-sudo rm -rf /etc/systemd/system/wardend.service
-sudo rm $(which wardend)
+sudo systemctl stop initiad
+sudo systemctl disable initiad
+sudo rm -rf /etc/systemd/system/initiad.service
+sudo rm $(which initiad)
 sudo rm -rf $HOME/.warden
 sed -i "/AIRCHAIN_/d" $HOME/.bash_profile
 ```
