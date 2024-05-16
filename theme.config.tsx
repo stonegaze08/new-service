@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { DocsThemeConfig } from 'nextra-theme-docs'
-
+import { useConfig } from 'nextra-theme-docs'
 import { useRouter } from 'next/router'
  
 export default {
@@ -12,14 +12,25 @@ export default {
       }
     }
   },
-  head: (
-    <>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <meta property="og:title" content="Zulna" />
-      <meta property="og:description" content="Service tools" />
-      <link rel="shortcut icon" href="/logo-fav-back.png" type="image/x-icon"></link>
-    </>
-  ),
+  head: () => {
+    const { asPath, defaultLocale, locale } = useRouter()
+    const { frontMatter } = useConfig()
+    const url =
+      'https://service.zulnaaa.com' +
+      (defaultLocale === locale ? asPath : `/${locale}${asPath}`)
+ 
+    return (
+      <>
+        <meta property="og:url" content={url} />
+        <meta property="og:title" content={frontMatter.title || 'ZULNA SERVICE'} />
+        <meta
+          property="og:description"
+          content={frontMatter.description || 'Service tools node testnet & mainnet & guide'}
+        />
+        <link rel="shortcut icon" href="/logo-fav-back.png" type="image/x-icon"></link>
+      </>
+    )
+  },
   logo: (
     <>
       <img height="25" width="31" src="/logo-noback.png" alt=""></img>
