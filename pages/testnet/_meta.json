@@ -5,7 +5,6 @@
         "title": "COMING SOON"
     },
     "arcium":"Arcium",
-    "juneo":"Juneo",
 
     "---": {
         "type": "separator",
@@ -14,6 +13,7 @@
     "airchain":"Airchain",
     "crossfi":"Crossfi",
     "initia":"Initia",
+    "juneo":"Juneo Socotra Testnet.",
     "nulink":"Nulink",
     "risc-zero":"Risc Zero",
     "side-protocol":"Side Protocol",

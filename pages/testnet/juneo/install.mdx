@@ -1,0 +1,184 @@
+import Image from 'next/image'
+
+The first step we should do in order to getting onboarded as Node Runner y/o Validator is going through the registration form.
+
+- Fill your applications here: https://juneo.com/forms
+
+![juneo](../../public/asset/JUNEO.webp)
+
+Make sure to add all your information such as, Name, Email, If you’re not a company team you can let this empty or simply say N/A, Website or Girhub Profile, Telegram ID or WhatsApp Number, Additional Inquires, Select your role in the Testnet which will be “Validator”.
+
+After filling the form we should proceed to set our nodes and joining to the Testnet as Validator. Only first 500 validators will be rewarded.
+
+# NODE SETUP
+
+For running our node we will need some tools to keep it running on the background to make some extra configs. In this case we will use “Screen” to make this process
+
+```js copy
+sudo apt update
+sudo apt install screen -y
+```
+```js copy
+cd ~
+
+git clone https://github.com/Juneo-io/juneogo-binaries
+```
+
+## If process fails use
+
+```js copy
+sudo apt update
+
+install-git
+```
+
+Then you can try to clone the repository again using
+
+```js copy
+git clone https://github.com/Juneo-io/juneogo-binaries
+```
+
+Now we should give permissions to three files for us to be able to move, delete, copy them which will be. (juneogo , jevm, srEr2XGGtowDVNQ6YgXcdUb16FGknssLTGUFYg7iMqESJ4h8e)
+
+```js copy
+chmod +x ~/juneogo-binaries/juneogo
+chmod +x ~/juneogo-binaries/plugins/jevm
+chmod +x ~/juneogo-binaries/plugins/srEr2XGGtowDVNQ6YgXcdUb16FGknssLTGUFYg7iMqESJ4h8e
+```
+
+After this, the juneogo binary should be moved to the home directory. The remaining two binaries should be moved to the (~/.juneogo/plugins directory).
+
+```js copy
+mv ~/juneogo-binaries/juneogo ~
+
+mkdir -p ~/.juneogo/plugins
+
+mv ~/juneogo-binaries/plugins/jevm ~/.juneogo/plugins
+mv ~/juneogo-binaries/plugins/srEr2XGGtowDVNQ6YgXcdUb16FGknssLTGUFYg7iMqESJ4h8e ~/.juneogo/plugins
+```
+
+Here we will already have the files on the right place to be executed meanwhile we run the node.
+
+Now let’s get our node started. We will do this in a second screen to keep it running on the background.
+
+```js copy
+screen -S juneogo
+./juneogo
+```
+
+When you start seeing the logs you can close this by pressing (CTRL + A + D) this way the node will be being synced mean we generate the next configs.
+
+Now we have to check if our node has already bootstrapped which is basically like being synced for that we run the next command:
+
+```js copy
+curl -X POST --data '{
+    "jsonrpc":"2.0",
+    "id"     :1,
+    "method" :"info.isBootstrapped",
+    "params": {
+        "chain":"JUNE"
+    }
+}' -H 'content-type:application/json;' 127.0.0.1:9650/ext/info
+```
+
+The expected response should be
+
+```js copy
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "isBootstrapped": true
+  },
+  "id": 1
+}
+```
+If the bootstrap is on “False” status it means our node is still being synced. (Sync may be take 2–6 hours) Meanwhile we can now see our node features.
+
+# Joining as Validator to Socotra Testnet
+
+Now having our node running we should get our node information to sync it with our wallet to start validating the network.
+
+We should also open the ports where our node is running
+
+```js copy
+sudo ufw allow 9650
+sudo ufw allow 9651 
+```
+
+Check if your node is up to the date and time synchronization (extremely needed for getting rewards).
+
+```js copy
+timedatectl
+```
+
+Expected response:
+
+```js copy
+               Local time: Thu 2024-05-16 00:06:22 UTC
+           Universal time: Thu 2024-05-16 00:06:22 UTC
+                 RTC time: Thu 2024-05-16 00:06:21
+                Time zone: UTC (UTC, +0000)
+System clock synchronized: yes
+              NTP service: active
+          RTC in local TZ: no
+```
+
+In case your node says NTP service: Inactive turn it on using
+
+```js copy
+timedatectl set-ntp on
+```
+Now let’s find our node info to connect to Socotra Testnet as Validators
+
+```js copy
+curl -X POST --data '{
+    "jsonrpc":"2.0",
+    "id"     :1,
+    "method" :"info.getNodeID"
+}' -H 'content-type:application/json' 127.0.0.1:9650/ext/info
+```
+Expected response :
+
+```js copy
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "nodeID": "NodeID-4JfgcoMWBpxCQL5VmyQ1f6L36mUbLLBga",
+    "nodePOP": {
+      "publicKey": "MyBLSKey",
+      "proofOfPossession": "MyBLSSignature",
+    }
+  },
+  "id": 1
+}
+```
+Now we should copy (NodeID, PublicKey, ProofOfPossesion) and go to mcnwallet.io. – Create a Wallet and backup your seed phrase.
+
+# Go to Discord and Open a Ticket on Faucet Request Channel.
+
+Share your wallet address, NodeID and Email (the one we used to register in the form)
+
+We require at least 1 JUNE of staking to start validating Socotra Testnet.
+
+In the mcnwallet, navigate to the Stake page, and click on the Validate card. Enter your NodeID, BLS Key (publicKey), and BLS Signature (proofOfPossession). Set the staking amount to 1 JUNE, (this will make appear the validate/staking button) set your validation time more than 30 days. Like if you stake on 15.05 your validation/staking time should be active until 16.06 or 20.06 (Airdrop elegibility requirement is validating the testnet for 30 days at least)
+
+![juneo](../../public/asset/juneo2.png)
+
+Next, click Validate to add your node to the Validator set.
+
+After this transaction has been completed, you may navigate to https://mcnscan.io/validator/validator-list and enter your nodeID in the search bar, which will show you the status of your node:
+
+![juneo](../../public/asset/juneo3.png)
+
+Then that’s it friends we’re already validating Socotra Testnet. Congratulations & Happy Validating.
+
+# Extra.
+
+If you want to check your node logs back simply use
+
+
+``js copy
+screen -S juneogo
+screen -r
+```
+
