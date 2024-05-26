@@ -1,0 +1,149 @@
+import { Callout } from 'nextra/components'
+import { Steps } from 'nextra/components'
+
+## Setup Server
+
+<Steps>
+
+### Update Packages and Install Prerequisites
+
+```js copy
+sudo apt update && apt upgrade -y
+sudo apt install curl git jq lz4 build-essential unzip fail2ban ufw -y
+```
+
+### Set Firewall
+
+```js copy
+sudo ufw default allow outgoing
+sudo ufw default deny incoming
+sudo ufw allow ssh
+sudo ufw allow 9100
+```
+
+```js copy
+sudo ufw enable
+```
+
+### Install GO
+
+```js copy
+ver="1.21.6"
+wget "https://golang.org/dl/go$ver.linux-amd64.tar.gz"
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf "go$ver.linux-amd64.tar.gz"
+rm "go$ver.linux-amd64.tar.gz"
+echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profile
+source $HOME/.bash_profile
+go version
+```
+
+### Node Installation
+
+```js copy
+cd $HOME
+rm -rf initia
+git clone https://github.com/initia-labs/initia.git
+cd initia
+git checkout v0.2.14
+make install
+```
+
+### Set Configuration for your node
+```js copy
+initiad config chain-id initiation-1
+initiad config keyring-backend file
+```
+
+### Init your node
+
+<Callout type="info" emoji="ℹ️">
+  You can change "MyNode" to anything you like
+</Callout>
+
+```js copy
+initiad init MyNode --chain-in initiation-1
+```
+
+### Add Genesis File and Addrbook
+
+```js copy
+wget -O $HOME/.initia/config/genesis.json https://testnet-files.itrocket.net/initia/genesis.json
+wget -O $HOME/.initia/config/addrbook.json https://testnet-files.itrocket.net/initia/addrbook.json
+```
+### Configure Seeds and Peers
+
+```js copy
+SEEDS="cd69bcb00a6ecc1ba2b4a3465de4d4dd3e0a3db1@initia-testnet-seed.itrocket.net:51656"
+PEERS="aee7083ab11910ba3f1b8126d1b3728f13f54943@initia-testnet-peer.itrocket.net:11656,5f66a9c4c772877f20f5cc1b380e2a8a0961e34a@185.197.251.177:26656,fbd6d5ee32b09dc415b4be4f76bca12acd6ea90f@157.245.127.114:26656,3b02d0628811d1f2b0134ddc5b36ccaf79718feb@37.27.82.143:15656,b4778656f255169b8b1d660b6af3a0df68d68e65@176.57.189.36:15656,9f0ae0790fae9a2d327d8d6fe767b73eb8aa5c48@176.126.87.65:22656,1d7d2d2cdb62df2a59aae536047d17f554e58bc3@154.38.181.13:656,9e4e9b4921cd59ae83b23b365931588dce17d916@144.126.132.137:51656,626e082b9a5a1cf99dbf8cbc1cb702ee7c1e9991@64.225.102.23:51656,394ecb5ad08b02c5063b7a8b61046a5e1261792a@185.227.135.229:51656"
+sed -i -e "s/^seeds *=.*/seeds = \"$SEEDS\"/; s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" $HOME/.initia/config/config.toml
+```
+### Costum port
+```js copy
+sed -i.bak -e "s%:1317%:${INITIA_PORT}317%g;
+s%:8080%:${INITIA_PORT}080%g;
+s%:9090%:${INITIA_PORT}090%g;
+s%:9091%:${INITIA_PORT}091%g;
+s%:8545%:${INITIA_PORT}545%g;
+s%:8546%:${INITIA_PORT}546%g;
+s%:6065%:${INITIA_PORT}065%g" $HOME/.initia/config/app.toml
+
+
+sed -i.bak -e "s%:26658%:${INITIA_PORT}658%g;
+s%:26657%:${INITIA_PORT}657%g;
+s%:6060%:${INITIA_PORT}060%g;
+s%:26656%:${INITIA_PORT}656%g;
+s%^external_address = \"\"%external_address = \"$(wget -qO- eth0.me):${INITIA_PORT}656\"%;
+s%:26660%:${INITIA_PORT}660%g" $HOME/.initia/config/config.toml
+```
+
+### Set Pruning, Enable Prometheus, Gas Prices, and Indexer
+
+```js copy
+sed -i -e "s/^pruning *=.*/pruning = \"custom\"/" $HOME/.initia/config/app.toml
+sed -i -e "s/^pruning-keep-recent *=.*/pruning-keep-recent = \"100\"/" $HOME/.initia/config/app.toml
+sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"50\"/" $HOME/.initia/config/app.toml
+sed -i 's|minimum-gas-prices =.*|minimum-gas-prices = "0.15uinit,0.01uusdc"|g' $HOME/.initia/config/app.toml
+sed -i -e "s/prometheus = false/prometheus = true/" $HOME/.initia/config/config.toml
+sed -i -e "s/^indexer *=.*/indexer = \"null\"/" $HOME/.initia/config/config.toml
+```
+
+###  Set Service file
+
+```js copy
+sudo tee /etc/systemd/system/initiad.service > /dev/null <<EOF
+[Unit]
+Description=Initia node
+After=network-online.target
+[Service]
+User=$USER
+WorkingDirectory=$HOME/.initia
+ExecStart=$(which initiad) start --home $HOME/.initia
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65535
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload
+sudo systemctl enable initiad
+```
+### Download Latest Snapshot
+
+```js copy
+initiad tendermint unsafe-reset-all --home $HOME/.initia
+if curl -s --head curl https://testnet-files.itrocket.net/initia/snap_initia.tar.lz4 | head -n 1 | grep "200" > /dev/null; then
+  curl https://testnet-files.itrocket.net/initia/snap_initia.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.initia
+    else
+  echo no have snap
+fi
+```
+
+### Start the Node
+
+```js copy
+sudo systemctl restart initiad
+sudo journalctl -fu initiad -o cat
+```
+</Steps>
+

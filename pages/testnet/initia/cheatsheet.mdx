@@ -87,19 +87,19 @@ initiad tx distribution withdraw-all-rewards --from wallet --chain-id initiation
 initiad tx distribution withdraw-rewards $(initiad keys show wallet --bech val -a) --commission --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
 ```
 ```js filename="Delegate tokens to your validator"
-initiad tx staking delegate $(initiad keys show wallet --bech val -a) 1000000000000000000mpx --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
+initiad tx staking delegate $(initiad keys show wallet --bech val -a) 1000000uinit --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
 ```
 ```js filename="Delegate token to other validator, change <to-valoper-address> as you like"
-initiad tx staking delegate <to-valoper-address> 1000000000000000000mpx --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
+initiad tx staking delegate <to-valoper-address> 1000000uinit --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
 ```
 ```js filename="Redelegate to another validator"
-initiad tx staking redelegate $(initiad keys show wallet --bech val -a) <to-valoper-address> 1000000000000000000mpx --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
+initiad tx staking redelegate $(initiad keys show wallet --bech val -a) <to-valoper-address> 1000000uinit --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
 ```
 ```js filename="Unbond token from your own validator"
-initiad tx staking unbond $(initiad keys show wallet --bech val -a) 1000000000000000000mpx --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
+initiad tx staking unbond $(initiad keys show wallet --bech val -a) 1000000uinit --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
 ```
 ```js filename="Send token to the wallet"
-initiad tx bank send wallet <to-wallet-address> 1000000000000000000mpx --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
+initiad tx bank send wallet <to-wallet-address> 1000000uinit --from wallet --chain-id initiation-1 --gas-adjustment 1.5 --gas auto --fees 80000uinit -y
 ```
 ## Governance
 
