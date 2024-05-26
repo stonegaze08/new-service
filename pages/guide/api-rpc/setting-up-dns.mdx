@@ -1,0 +1,50 @@
+import Image from 'next/image'
+
+# Setting up DNS
+
+## Prerequisites
+
+### Domain
+
+You will need to have your own domain name first before we can continue.
+If you don't have your domain yet, you can Get your domain here (https://www.namecheap.com/)
+
+### Cloudflare
+
+You need to sign up for Cloudflare account if you don't have it already. Free plan is enough (https://www.cloudflare.com/)
+
+## DNS Management
+
+We will use Cloudflare as our DNS Manager. You can plan ahead for which DNS do you want to use.
+
+In this case, we will use our crossfi setup as example.
+
+### Cloudflare Setup
+
+After you registered to Cloudflare, you will see your dashboard, click on "Add a site" to continue
+
+![dns](/asset/api/gd1.png)
+
+Fill in your domain name (example: zulnaaa.com), then click continue
+
+![dns](/asset/api/gd2.png)
+
+Cloudflare will prompt you to update your nameserver settings to their nameserver, you can set it up in your domain provider
+
+![dns](/asset/api/gd3.avif)
+
+After your nameserver propagated, go to DNS > Records, then click on "Add record" as shown below on the bottom right corner
+
+![dns](/asset/api/gd4.png)
+
+Fill in the required details
+Select A for the Type, fill in your subdomain in Name field, and your server IPv4
+Finally, set the Proxy status to DNS only by clicking on it
+
+![dns](/asset/api/gd5.png)
+
+After everything is done, it will look like this
+
+![dns](/asset/api/gd6.png)
+
+Now you have set up your domain, but it won't work yet, let's continue to setup our server

@@ -1,5 +1,15 @@
 {
     "overview":"OVERVIEW",
+    "--": {
+        "type": "separator",
+        "title": "BASIC"
+    },
+    "api-rpc":"Create API & RPC",
+
+    "---": {
+        "type": "separator",
+        "title": "TESTNET"
+    },
     "crossfi":"Crossfi",
     "nulink":"Nulink"
 }
