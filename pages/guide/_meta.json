@@ -10,6 +10,7 @@
         "type": "separator",
         "title": "TESTNET"
     },
+    "airchain":"Airchain",
     "crossfi":"Crossfi",
     "nulink":"Nulink"
 }
