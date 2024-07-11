@@ -1,0 +1,240 @@
+# Quick start
+
+Install the default node software stack with a single line of command on Mac, Linux, or Windows WSL.
+
+```js copy
+curl -sSfL 'https://github.com/GaiaNet-AI/gaianet-node/releases/latest/download/install.sh' | bash
+```
+Then, follow the prompt on your screen to set up the environment `path`. The command line will begin with source.
+
+Initialize the node. It will download the model files and vector database files specified in the `$HOME/gaianet/config.json` file, and it could take a few minutes since the files are large.
+```js copy
+gaianet init
+```
+
+Start the node.
+
+```js copy
+gaianet start
+```
+
+The script prints the official node address on the console as follows. You can open a browser to that URL to see the node information and then chat with the AI agent on the node.
+
+```js filename="Output"
+... ... https://0x513a4b4efd593745530067a35cffe55f89c232b4.us.gaianet.network/
+```
+To stop the node, you can run the following script.
+
+```js copy
+gaianet stop
+```
+## Install guide
+
+```js copy
+curl -sSfL 'https://raw.githubusercontent.com/GaiaNet-AI/gaianet-node/main/install.sh' | bash
+```
+
+```js filename="Output"
+[+] Downloading default config file ...
+
+[+] Downloading nodeid.json ...
+
+[+] Installing WasmEdge with wasi-nn_ggml plugin ...
+
+Info: Detected Linux-x86_64
+
+Info: WasmEdge Installation at /home/azureuser/.wasmedge
+
+Info: Fetching WasmEdge-0.13.5
+
+/tmp/wasmedge.2884467 ~/gaianet
+######################################################################## 100.0%
+~/gaianet
+Info: Fetching WasmEdge-GGML-Plugin
+
+Info: Detected CUDA version:
+
+/tmp/wasmedge.2884467 ~/gaianet
+######################################################################## 100.0%
+~/gaianet
+Installation of wasmedge-0.13.5 successful
+WasmEdge binaries accessible
+
+    The WasmEdge Runtime wasmedge version 0.13.5 is installed in /home/azureuser/.wasmedge/bin/wasmedge.
+
+
+[+] Installing Qdrant binary...
+    * Download Qdrant binary
+################################################################################################## 100.0%
+
+    * Initialize Qdrant directory
+
+[+] Downloading the rag-api-server.wasm ...
+################################################################################################## 100.0%
+
+[+] Downloading dashboard ...
+################################################################################################## 100.0%
+```
+By default, it installs into the `$HOME/gaianet` directory. You can also choose to install into an alternative directory.
+
+```js copy
+curl -sSfL 'https://raw.githubusercontent.com/GaiaNet-AI/gaianet-node/main/install.sh' | bash -s -- --base $HOME/gaianet.alt
+```
+
+## Initialize the node
+
+```js copy
+gaianet init
+```
+
+```js filename="Output"
+[+] Downloading Llama-2-7b-chat-hf-Q5_K_M.gguf ...
+############################################################################################################################## 100.0%############################################################################################################################## 100.0%
+
+[+] Downloading all-MiniLM-L6-v2-ggml-model-f16.gguf ...
+
+############################################################################################################################## 100.0%############################################################################################################################## 100.0%
+
+[+] Creating 'default' collection in the Qdrant instance ...
+
+    * Start a Qdrant instance ...
+
+    * Remove the existed 'default' Qdrant collection ...
+
+    * Download Qdrant collection snapshot ...
+############################################################################################################################## 100.0%############################################################################################################################## 100.0%
+
+    * Import the Qdrant collection snapshot ...
+
+    * Recovery is done successfully
+```
+The `init` command initializes the node according to the `$HOME/gaianet/config.json` file. You can use some of our pre-set configurations. For example, the command below initializes a node with the llama-3 8B model with a London guidebook as knowledge base.
+
+```js copy
+gaianet init --config https://raw.githubusercontent.com/GaiaNet-AI/node-configs/main/llama-3-8b-instruct_london/config.json
+```
+To see a list of pre-set configurations, you can do `gaianet init --help`. Besides a pre-set configurations like `gaianet_docs`, you can also pass a URL to your own `config.json` for the node to be initialized to the state you'd like.
+
+If you need to `init` a node installed in an alternative directory, do this.
+```js copy
+gaianet init --base $HOME/gaianet.alt
+```
+
+## Start the node
+
+```js copy
+gaianet start
+```
+
+```js filename="Output"
+[+] Starting Qdrant instance ...
+
+    Qdrant instance started with pid: 39762
+
+[+] Starting LlamaEdge API Server ...
+
+    Run the following command to start the LlamaEdge API Server:
+
+wasmedge --dir .:./dashboard --nn-preload default:GGML:AUTO:Llama-2-7b-chat-hf-Q5_K_M.gguf --nn-preload embedding:GGML:AUTO:all-MiniLM-L6-v2-ggml-model-f16.gguf rag-api-server.wasm --model-name Llama-2-7b-chat-hf-Q5_K_M,all-MiniLM-L6-v2-ggml-model-f16 --ctx-size 4096,384 --prompt-template llama-2-chat --qdrant-collection-name default --web-ui ./ --socket-addr 0.0.0.0:8080 --log-prompts --log-stat --rag-prompt "Use the following pieces of context to answer the user's question.\nIf you don't know the answer, just say that you don't know, don't try to make up an answer.\n----------------\n"
+
+
+    LlamaEdge API Server started with pid: 39796
+```
+
+You can start the node for local use. It will be only accessible via `localhost` and not available on any of the GaiaNet domain's public URLs.
+
+```js copy
+gaianet start --local-only
+```
+You can also start a node installed in an alternative base directory.
+
+```js copy
+gaianet start --base $HOME/gaianet.alt
+```
+## Stop the node
+
+```js copy
+gaianet stop
+```
+
+```js filename="Output"
+[+] Stopping WasmEdge, Qdrant and frpc ...
+```
+Stop a node installed in an alternative base directory.
+
+```js copy
+gaianet stop --base $HOME/gaianet.alt
+```
+
+## Update configuration
+Using `gaianet config` subcommand can update the key fields defined in the `config.json` file. You MUST run `gaianet init` again after you update the configuartion.
+
+To update the `chat` field, for example, use the following command:
+
+```js copy
+gaianet config --chat-url "https://huggingface.co/second-state/Llama-2-13B-Chat-GGUF/resolve/main/Llama-2-13b-chat-hf-Q5_K_M.gguf"
+```
+To update the `chat_ctx_size field`, for example, use the following command:
+
+```js copy
+gaianet config --chat-ctx-size 5120
+```
+Below are all options of the config subcommand.
+
+```js copy
+$ gaianet config --help
+
+Usage: gaianet config [OPTIONS]
+
+Options:
+  --chat-url <url>               Update the url of chat model.
+  --chat-ctx-size <val>          Update the context size of chat model.
+  --embedding-url <url>          Update the url of embedding model.
+  --embedding-ctx-size <val>     Update the context size of embedding model.
+  --prompt-template <val>        Update the prompt template of chat model.
+  --port <val>                   Update the port of LlamaEdge API Server.
+  --system-prompt <val>          Update the system prompt.
+  --rag-prompt <val>             Update the rag prompt.
+  --rag-policy <val>             Update the rag policy [Possible values: system-message, last-user-message].
+  --reverse-prompt <val>         Update the reverse prompt.
+  --domain <val>                 Update the domain of GaiaNet node.
+  --snapshot <url>               Update the Qdrant snapshot.
+  --qdrant-limit <val>           Update the max number of result to return.
+  --qdrant-score-threshold <val> Update the minimal score threshold for the result.
+  --base <path>                  The base directory of GaiaNet node.
+  --help                         Show this help message
+```
+## Register
+
+# After Successfully Running, Register your Node
+
+Save your Address, Keystore, Password:
+
+```js copy
+nano gaianet/nodeid.json
+```
+
+Command to Check your Device ID:
+
+```js copy
+gaianet info
+```
+
+
+👉 Open : https://www.gaianet.ai
+- Connect Metamask Wallet (New for Safety)
+- Go to Profile
+- Bind your Social Media
+- Go to Node
+- Submit Node ID
+- Submit Device ID
+- Check Node Status
+- Join The Network Of GaiaNet
+- Claim GAIA Profile Verified Role (https://app.galxe.com/quest/Gaianet/GCML9tgKrT) 
+- Claim Early Node Verified Role (https://app.galxe.com/quest/Gaianet/GCMz9tgKnG) 
+- Complete Another Task Galxe (https://app.galxe.com/quest/Gaianet/GC4V9tg4mr) 
+- Done
+
+
+
+# FINNALLY!!!! SEE YOU NEXT GUIDE
