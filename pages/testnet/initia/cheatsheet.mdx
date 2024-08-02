@@ -126,14 +126,14 @@ initiad tx gov vote 1 NoWithVeto --from wallet --chain-id initiation-1 --gas-adj
 
 ```js filename="Update custom port"
 CUSTOM_PORT=239
-sed -i -e "s%^proxy_app = \"tcp://127.0.0.1:26658\"%proxy_app = \"tcp://127.0.0.1:${CUSTOM_PORT}58\"%; s%^laddr = \"tcp://127.0.0.1:26657\"%laddr = \"tcp://127.0.0.1:${CUSTOM_PORT}57\"%; s%^pprof_laddr = \"localhost:6060\"%pprof_laddr = \"localhost:${CUSTOM_PORT}60\"%; s%^laddr = \"tcp://0.0.0.0:26656\"%laddr = \"tcp://0.0.0.0:${CUSTOM_PORT}56\"%; s%^prometheus_listen_addr = \":26660\"%prometheus_listen_addr = \":${CUSTOM_PORT}66\"%" $HOME/.mineplex-chain/config/config.toml
-sed -i -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:${CUSTOM_PORT}17\"%; s%^address = \":8080\"%address = \":${CUSTOM_PORT}80\"%; s%^address = \"0.0.0.0:9090\"%address = \"0.0.0.0:${CUSTOM_PORT}90\"%; s%^address = \"0.0.0.0:9091\"%address = \"0.0.0.0:${CUSTOM_PORT}91\"%" $HOME/.mineplex-chain/config/app.toml
+sed -i -e "s%^proxy_app = \"tcp://127.0.0.1:26658\"%proxy_app = \"tcp://127.0.0.1:${CUSTOM_PORT}58\"%; s%^laddr = \"tcp://127.0.0.1:26657\"%laddr = \"tcp://127.0.0.1:${CUSTOM_PORT}57\"%; s%^pprof_laddr = \"localhost:6060\"%pprof_laddr = \"localhost:${CUSTOM_PORT}60\"%; s%^laddr = \"tcp://0.0.0.0:26656\"%laddr = \"tcp://0.0.0.0:${CUSTOM_PORT}56\"%; s%^prometheus_listen_addr = \":26660\"%prometheus_listen_addr = \":${CUSTOM_PORT}66\"%" $HOME/.initiad/config/config.toml
+sed -i -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:${CUSTOM_PORT}17\"%; s%^address = \":8080\"%address = \":${CUSTOM_PORT}80\"%; s%^address = \"0.0.0.0:9090\"%address = \"0.0.0.0:${CUSTOM_PORT}90\"%; s%^address = \"0.0.0.0:9091\"%address = \"0.0.0.0:${CUSTOM_PORT}91\"%" $HOME/.initiad/config/app.toml
 ```
 ```js filename="Disable indexer"
-sed -i -e 's|^indexer *=.*|indexer = "null"|' $HOME/.mineplex-chain/config/config.toml
+sed -i -e 's|^indexer *=.*|indexer = "null"|' $HOME/.initiad/config/config.toml
 ```
 ```js filename="Enable indexer"
-sed -i -e 's|^indexer *=.*|indexer = "kv"|' $HOME/.mineplex-chain/config/config.toml
+sed -i -e 's|^indexer *=.*|indexer = "kv"|' $HOME/.initiad/config/config.toml
 ```
 ```js filename="Pruning update"
 sed -i \
@@ -141,7 +141,7 @@ sed -i \
   -e 's|^pruning-keep-recent *=.*|pruning-keep-recent = "100"|' \
   -e 's|^pruning-keep-every *=.*|pruning-keep-every = "0"|' \
   -e 's|^pruning-interval *=.*|pruning-interval = "19"|' \
-  $HOME/.mineplex-chain/config/app.toml
+  $HOME/.initiad/config/app.toml
 ```
 
 ## Maintenance
@@ -153,7 +153,7 @@ initiad status 2>&1 | jq .ValidatorInfo
 initiad status 2>&1 | jq .SyncInfo
 ```
 ```js filename="Get node peer"
-echo $(initiad tendermint show-node-id)'@'$(curl -s ifconfig.me)':'$(cat $HOME/.mineplex-chain/config/config.toml | sed -n '/Address to listen for incoming connection/{n;p;}' | sed 's/.*://; s/".*//')
+echo $(initiad tendermint show-node-id)'@'$(curl -s ifconfig.me)':'$(cat $HOME/.initiad/config/config.toml | sed -n '/Address to listen for incoming connection/{n;p;}' | sed 's/.*://; s/".*//')
 ```
 ```js filename="Check validator keys"
 [[ $(initiad q staking validator $(initiad keys show wallet --bech val -a) -oj | jq -r .consensus_pubkey.key) = $(initiad status | jq -r .ValidatorInfo.PubKey.value) ]] && echo -e "\n\e[1m\e[32mTrue\e[0m\n" || echo -e "\n\e[1m\e[31mFalse\e[0m\n"
@@ -162,20 +162,20 @@ echo $(initiad tendermint show-node-id)'@'$(curl -s ifconfig.me)':'$(cat $HOME/.
 curl -sS http://localhost:23957/net_info | jq -r '.result.peers[] | "\(.node_info.id)@\(.remote_ip):\(.node_info.listen_addr)"' | awk -F ':' '{print $1":"$(NF)}'
 ```
 ```js filename="Configure minimum gas prices"
-sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"10mpx\"/" $HOME/.mineplex-chain/config/app.toml
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"10mpx\"/" $HOME/.initiad/config/app.toml
 ```
 ```js filename="Enable prometheus"
-sed -i -e "s/prometheus = false/prometheus = true/" $HOME/.mineplex-chain/config/config.toml
+sed -i -e "s/prometheus = false/prometheus = true/" $HOME/.initiad/config/config.toml
 ```
 ```js filename="Reset chain data"
-initiad tendermint unsafe-reset-all --keep-addr-book --home $HOME/.mineplex-chain --keep-addr-book
+initiad tendermint unsafe-reset-all --keep-addr-book --home $HOME/.initiad --keep-addr-book
 ```
 ```js filename="Remove node"
 sudo systemctl stop initiad
 sudo systemctl disable initiad
 sudo rm -rf /etc/systemd/system/initiad.service
 sudo rm $(which initiad)
-sudo rm -rf $HOME/.warden
-sed -i "/AIRCHAIN_/d" $HOME/.bash_profile
+sudo rm -rf $HOME/.initiad
+sed -i "/INITIA_/d" $HOME/.bash_profile
 ```
 </Steps>
