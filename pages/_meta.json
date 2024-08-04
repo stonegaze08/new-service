@@ -20,5 +20,12 @@
         "type": "page",
         "href": "https://explorer.zulnaaa.com",
         "newWindow": true
+  },
+  "blog": {
+        "title": "BLOG ↗",
+        "type": "page",
+        "href": "https://blog.zulnaaa.com",
+        "newWindow": true
   }
+}
 }
