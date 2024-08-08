@@ -1,0 +1,50 @@
+import { Callout } from 'nextra/components'
+import Link from 'next/link'
+import Image from 'next/image'
+
+# Add a Node to the Validator Set
+
+How to add your Juneo Supernet node as a validator to the Juneo Primary Network.
+
+After successfully bootstrapping your node, you may add it as a validator on the primary network (after which you may create Multi-Chain Networks and deploy blockchains on them).
+
+## Adding a validator using the graphic interface
+
+The first step to becoming a validator is to obtain your Node ID and prepare your BLS key information, which includes your public key and proof of possession. Open the terminal on the server running your node, and execute the following call:
+```js copy
+curl -X POST --data '{
+    "jsonrpc":"2.0",
+    "id"     :1,
+    "method" :"info.getNodeID"
+}' -H 'content-type:application/json' 127.0.0.1:9650/ext/info
+```
+
+```js filename="OUTPUT"
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "nodeID": "NodeID-4JfgcoMWBpxCQL5VmyQ1f6L36mUbLLBga",
+    "nodePOP": {
+      "publicKey": "MyBLSKey",
+      "proofOfPossession": "MyBLSSignature",
+    }
+  },
+  "id": 1
+}
+```
+Next, copy the value for the `nodeID`, `publicKey`, and `proofOfPossession` from the response and log into mcnwallet.io.
+<Callout type="info" emoji="ℹ️">
+  For non-advanced users, we recommend MNEMONIC usage for access to the the graphic interface.
+</Callout>
+
+Please make sure that you have a balance of at least 100 JUNE in the P-chain, and additional JUNE for transaction costs. For this purpose, you may perform Cross-chain transactions to transfer JUNE from any of the other two chains to the P-chain in the Cross-chain page.
+
+In the mcnwallet, navigate to the Stake page, and click on the Validate card. Enter your NodeID, BLS Key (publicKey), and BLS Signature (proofOfPossession). Set the staking amount to 100 JUNE, and the validation period to 14 days. Ensure all information is correctly entered to enable your node for validation.
+
+![juneo](/asset/juneo/juneo2.png)
+
+Next, click Validate to add your node to the Validator set. 
+
+After this transaction has been completed, you may navigate to https://mcnscan.io/validator/validator-list and enter your nodeID in the search bar, which will show you the status of your node:
+
+![juneo](/asset/juneo/juneo3.png)

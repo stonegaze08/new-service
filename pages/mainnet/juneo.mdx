@@ -1,0 +1,72 @@
+import ImageWithText from '../../components/border'
+import Image from 'next/image'
+import { Callout } from 'nextra/components'
+import Link from 'next/link'
+
+<ImageWithText 
+  src="/logos/juneo.jpg" 
+  alt="juneo logo" 
+  text="Juneo" 
+/>
+
+The Testnet is part of our development process. New features will be deployed later on where they can be battle tested together with our community. 20+ blockchains will be pre-deployed on the Genesis Testnet.
+The final list of blockchains for the Mainnet will depend on activity and community interest, and will likely consist of around 12 blockchains.
+
+
+## Stakes and fees
+- The minimum stake on Mainnet is 100 JUNE, where as the maximum stake is 30,000 JUNE. On the Socotra Testnet, the minimum stake is 1 JUNE, and the maximum stake is 30,000 JUNE. You will also need additional funds to pay for transaction fees.
+
+- The minimum staking period is 14 days on Mainnet and on Socotra Testnet. The maximum staking period for both networks is 365 days.
+
+- Any delegator staking their funds on your node will pay you the delegation fee, which is 12% of their reward. Delegators can stake no more than x4 of your own stake.
+
+<Callout type="info" emoji="ℹ️">
+A node cannot be a validator on a MCN longer than it is a validator on the Juneo Primary Network. If you wish to deploy a MCN and add your node as a validator, we recommend staking on the Juneo Primary Network for at least 15 days. Once you have staked your tokens, you will be able to deploy a MCN and add your node as a validator to it for the minimum required validation period.
+</Callout>
+
+|        | Mainnet | Socotra |
+| :----- | :----: | ----: |
+| Minimum stake   |  100 JUNE  |   1 JUNE |
+| Maximum stake | 30,000 JUNE  |  1,000,000 JUNE |
+|Minimum staking period | 14 days | 14 days|
+|Maximum staking period | 365 days | 365 days |
+
+## Node requirements
+
+| OS | Ubuntu 22.04 |
+| :----- | :----: |
+| CPU| 4 cores |
+| RAM   |  8 GiB   |
+| Storage | 160 GiB SSD (500 GiB SSD on Mainnet)  |
+|Network | 5 Mbps |
+
+## Network
+At least 5 Mbps bandwidth (both upload and download) is required to run a validator node.
+
+The node needs to accept connections from the Internet on the network ports `9651` (and optionally port `9650` to allow remote RPC calls). To enable port access on macOS, use Apple documentation. On Linux, use `ufw` firewall:
+
+```js copy
+sudo ufw allow 9650
+sudo ufw allow 9651 
+```
+ 
+<Callout type="warning" emoji="⚠️">
+Running your node behind NAT is not recommended. Home installation is not recommended except for testing purposes.
+</Callout>
+
+If you're running a node on a home computer, it's most likely that you have a dynamic IP. You will need to either ask your ISP to assign a permanent public address, or set up port forwarding of port `9651` (and optionally `9650`) from the internet to your node computer. Please reference your router documentation.
+
+An active node maintains thousands of live TCP connections, keep this in mind when choosing the router for such installation. A cheap router can cause network problems and make your node considered offline because of poor connection. Being online less than 80% of staking period means losing your rewards.
+
+## Date and time synchronization
+
+To enable time synchronization on Linux, please run the the command timedatectl in your terminal. 
+
+If the NTP service parameter is set to no, then your node't time may get out of sync. Set up time synchronization by running the command:
+
+```js copy
+timedatectl set-ntp on
+```
+Run timedatectl again, and the parameter System clock synchronized should now be set to yes.
+
+For time synchronization on macOS, please follow their <Link href="https://support.apple.com/guide/mac-help/set-the-date-and-time-automatically-mchlp2996/mac" style={{ color: 'green', textDecoration: 'underline' }}>documentation</Link>.
