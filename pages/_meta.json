@@ -11,20 +11,10 @@
       "title": "TESTNET",
       "type": "page"
     },
-    "guide": {
-      "title": "GUIDE",
-      "type": "page"
-    },
     "explorer": {
-        "title": "EXPLORER ↗",
+        "title": "EXPLORER",
         "type": "page",
-        "href": "https://explorer.zulnaaa.com",
-        "newWindow": true
-  },
-  "blog": {
-        "title": "BLOG ↗",
-        "type": "page",
-        "href": "https://blog.zulnaaa.com/",
+        "href": "https://explorer.stonegaze.net",
         "newWindow": true
   }
 }
