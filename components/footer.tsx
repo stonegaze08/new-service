@@ -190,8 +190,8 @@ const FooterMenu = () => {
       </div>
       <div className="my-8 font-mono text-sm">
       {new Date().getFullYear()} ©{' '}
-        <a href="https://github.com/zulna10" target="_blank">
-          ZULNA
+        <a href="https://github.com/stonegaze08" target="_blank">
+          Stonegaze
         </a>
         .
       </div>
