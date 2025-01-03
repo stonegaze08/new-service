@@ -1,0 +1,20 @@
+{
+    "index": {
+      "title": "HOME",
+      "type": "page"
+    },
+    "mainnet": {
+      "title": "NODE INSTALLATION",
+      "type": "page"
+    },
+    "testnet": {
+      "title": "ARTICLE",
+      "type": "page"
+    },
+    "explorer": {
+        "title": "EXPLORER",
+        "type": "page",
+        "href": "https://explorer.stonegaze.net",
+        "newWindow": true
+  }
+}
