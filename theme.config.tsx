@@ -43,6 +43,7 @@ export default {
     key: '2.0-release',
     text: (
       <a href="https://service.stonegaze.net" target="_blank">
+      
       SUP GUYS
       </a>
     )
