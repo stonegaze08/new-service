@@ -33,8 +33,8 @@ export default {
   },
   logo: (
     <>
-      <img height="75" width="75" src="/logo-noback.png" alt=""></img>
-      <span style={{ marginLeft: '.2em', fontWeight: 600, fontSize:25 }}>
+      <img height="60" width="60" src="/logo-noback.png" alt=""></img>
+      <span style={{ marginLeft: '.0em', fontWeight: 600, fontSize:27 }}>
        StoneGaze
       </span>
     </>
@@ -42,9 +42,9 @@ export default {
   banner: {
     key: '2.0-release',
     text: (
-      <a href="https://service.stonegaze.net" target="_blank">
+      <a href="https://stonegaze.net" target="_blank">
       
-      SUP GUYS
+      More Info
       </a>
     )
   },
