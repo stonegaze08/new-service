@@ -1,0 +1,132 @@
+## RPC, API,gRPC
+Cosmos:
+
+RPC: https://story-testnet-rpc.itrocket.net
+
+Websocket: wss://story-testnet-rpc.itrocket.net/websocket
+
+API: https://story-testnet-api.itrocket.net
+
+Custom REST API (20 req/s max): https://api-story-testnet.itrocket.net
+
+##
+
+Ethereum Virtual Machine (EVM):
+
+JSON-RPC: https://story-testnet-evm.itrocket.net:443
+
+Websocket: wss://story-testnet-wss.itrocket.net
+
+##
+
+### Peers, Seeds, Live Peers, Addebook
+peers:
+```bash
+01f8a2148a94f0267af919d2eab78452c90d9864@story-testnet-peer.itrocket.net:52656
+```
+seeds:
+```bash
+46b7995b0b77515380000b7601e6fc21f783e16f@story-testnet-seed.itrocket.net:52656
+```
+live peers: 
+```bash
+PEERS="01f8a2148a94f0267af919d2eab78452c90d9864@story-testnet-peer.itrocket.net:52656,521f141a1ea0e9f23029428b41d3d3cc41862feb@34.76.242.140:26656,eb99dd98a2236fed658134ef9e78b86b58cb16ed@213.239.198.181:52656,84f26098dc3736c501de372c85bb8794a1bd50e5@65.109.69.188:26656,f86435bc0377a9b4dc64b6794f9e6fca3c8dad7a@65.109.71.80:52656,9d34ab3819aa8baa75589f99138318acfa0045f5@95.217.119.251:30900,32a52b2fd7a512c1a4803ebe0ba25ca53fad434f@88.99.216.51:26656,311cd3903e25ab85e5a26c44510fbc747ab61760@152.53.87.97:36656,db6791a8e35dee076de75aebae3c89df8bba3374@65.109.50.22:56656,9308260b6cb4ca1faa9f3025bac0bc2636c4b020@185.232.68.94:26656,36b4dc63121ecde21a7e1f884768d456fc059e0e@152.53.240.138:62656,40bafe5bf4c0c8913be7299b97b93fd8daecb138@188.68.38.127:20656"
+sed -i -e "/^\[p2p\]/,/^\[/{s/^[[:space:]]*persistent_peers *=.*/persistent_peers = \"$PEERS\"/}" $HOME/.story/story/config/config.toml
+```
+peers scanner:
+```bash
+PEERS="01f8a2148a94f0267af919d2eab78452c90d9864@207.120.52.220:52656,dfb96be7e47cd76762c1dd45a5f76e536be47faa@65.108.45.34:32655,39b7dc4b8a061ca4456799598c31db911a795d06@91.72.69.47:26686,7ad0197fc47f2093d418573410c70ae15dd8bd17@74.208.94.42:26646,85e39bd2820f16f023289ff7f2a3e57b60d03dcb@198.244.176.206:22136,fbf163ec501eb2acdfe90317dd06c3bad7acaf26@65.21.192.60:62656"
+sed -i -e "/^\[p2p\]/,/^\[/{s/^[[:space:]]*persistent_peers *=.*/persistent_peers = \"$PEERS\"/}" $HOME/.story/story/config/config.toml
+```
+addrbook:
+```bash
+wget -O $HOME/.story/story/config/addrbook.json https://server-3.itrocket.net/testnet/story/addrbook.json
+```
+genesis:
+```bash
+wget -O $HOME/.story/story/config/genesis.json https://server-3.itrocket.net/testnet/story/genesis.json
+```
+enode:
+```bash
+geth --exec 'admin.addPeer("enode://e612cc32e85928b9311927f5682d0154fa41a22a7be8e2be68a4d1b2c64db363efbcae2dfa9b98ee3acb91341abf70d8683bcd80faf11f063ff0afb2a0655058@story-testnet-enode.itrocket.net:30301")' attach ~/.story/geth/aeneid/geth.ipc
+sudo systemctl restart story-geth && sudo journalctl -u story-geth -f
+```
+##
+
+### Snapshot (pruned)
+
+updated every 4h  available 24/7 (every server stores last 2 snapshots)
+
+height: <b>4456933</b> | <b>2h ago</b> | <b>3841</b> blocks ago | size <b>2.72 GB:</b> story <b>17MB </b> db: <b>goleveldb</b>
+
+```bash
+# install dependencies, and disable statesync to avoid sync issues
+sudo apt install curl tmux jq lz4 unzip -y
+sed -i.bak -E "s|^(enable[[:space:]]+=[[:space:]]+).*$|\1false|" $HOME/.story/story/config/config.toml
+
+# stop node and backup priv_validator_state.json
+sudo systemctl stop story story-geth
+cp $HOME/.story/story/data/priv_validator_state.json $HOME/.story/story/priv_validator_state.json.backup
+
+# remove old data and unpack Story snapshot
+rm -rf $HOME/.story/story/data
+curl https://server-3.itrocket.net/testnet/story/story_2025-05-17_4456933_snap.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.story/story
+
+# restore priv_validator_state.json
+mv $HOME/.story/story/priv_validator_state.json.backup $HOME/.story/story/data/priv_validator_state.json
+
+# delete geth data and unpack Geth snapshot
+rm -rf $HOME/.story/geth/aeneid/geth/chaindata
+curl https://server-3.itrocket.net/testnet/story/geth_story_2025-05-17_4456933_snap.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.story/geth/aeneid/geth
+
+# restart node and check logs
+sudo systemctl restart story story-geth
+sudo journalctl -u story-geth -u story -f
+```
+###
+
+### State sync
+if you don't want to wait for a long synchronization you can use:
+```bash
+cd $HOME
+sudo systemctl stop story story-geth
+
+cp $HOME/.story/story/data/priv_validator_state.json $HOME/.story/story/priv_validator_state.json.backup
+rm -rf $HOME/.story/story/data
+mkdir $HOME/.story/story/data
+mv $HOME/.story/story/priv_validator_state.json.backup $HOME/.story/story/data/priv_validator_state.json
+
+peers="01f8a2148a94f0267af919d2eab78452c90d9864@story-testnet-peer.itrocket.net:52656,521f141a1ea0e9f23029428b41d3d3cc41862feb@34.76.242.140:26656,eb99dd98a2236fed658134ef9e78b86b58cb16ed@213.239.198.181:52656,84f26098dc3736c501de372c85bb8794a1bd50e5@65.109.69.188:26656,f86435bc0377a9b4dc64b6794f9e6fca3c8dad7a@65.109.71.80:52656,9d34ab3819aa8baa75589f99138318acfa0045f5@95.217.119.251:30900,32a52b2fd7a512c1a4803ebe0ba25ca53fad434f@88.99.216.51:26656,311cd3903e25ab85e5a26c44510fbc747ab61760@152.53.87.97:36656,db6791a8e35dee076de75aebae3c89df8bba3374@65.109.50.22:56656,9308260b6cb4ca1faa9f3025bac0bc2636c4b020@185.232.68.94:26656,36b4dc63121ecde21a7e1f884768d456fc059e0e@152.53.240.138:62656,40bafe5bf4c0c8913be7299b97b93fd8daecb138@188.68.38.127:20656"  
+SNAP_RPC="https://story-testnet-rpc.itrocket.net:443"
+
+sed -i.bak -e "s/^persistent_peers *=.*/persistent_peers = \"$peers\"/" $HOME/.story/story/config/config.toml
+
+LATEST_HEIGHT=$(curl -s $SNAP_RPC/block | jq -r .result.block.header.height);
+BLOCK_HEIGHT=$((LATEST_HEIGHT - 1000));
+TRUST_HASH=$(curl -s "$SNAP_RPC/block?height=$BLOCK_HEIGHT" | jq -r .result.block_id.hash)
+
+echo $LATEST_HEIGHT $BLOCK_HEIGHT $TRUST_HASH && sleep 2
+
+sed -i.bak -E "s|^(enable[[:space:]]+=[[:space:]]+).*$|\1true| ;
+s|^(rpc_servers[[:space:]]+=[[:space:]]+).*$|\1\"$SNAP_RPC,$SNAP_RPC\"| ;
+s|^(trust_height[[:space:]]+=[[:space:]]+).*$|\1$BLOCK_HEIGHT| ;
+s|^(trust_hash[[:space:]]+=[[:space:]]+).*$|\1\"$TRUST_HASH\"| ;
+s|^(seeds[[:space:]]+=[[:space:]]+).*$|\1\"\"|" $HOME/.story/story/config/config.toml
+
+sudo systemctl restart story story-geth && sudo journalctl -u story -f
+```
+###
+
+### Node Sync Status Checker
+```bash
+#!/bin/bash
+rpc_port=$(grep -m 1 -oP '^laddr = "\K[^"]+' "$HOME/.story/story/config/config.toml" | cut -d ':' -f 3)
+while true; do
+  local_height=$(curl -s localhost:$rpc_port/status | jq -r '.result.sync_info.latest_block_height')
+  network_height=$(curl -s https://story-testnet-rpc.itrocket.net/status | jq -r '.result.sync_info.latest_block_height')
+  blocks_left=$((network_height - local_height))
+  echo -e "\033[1;33mNode Height:\033[1;34m $local_height\033[0m \033[1;33m| Network Height:\033[1;36m $network_height\033[0m \033[1;33m| Blocks Left:\033[1;31m $blocks_left\033[0m"
+  sleep 5
+done
+```
+
