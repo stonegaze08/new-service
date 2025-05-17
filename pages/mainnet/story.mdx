@@ -1,0 +1,65 @@
+# Story Node Installation Guide
+
+---
+
+## 🧩 Pre-Installation Checklist
+
+- ✅ Verify system meets hardware requirements  
+- 🖥️ Operating system: **Ubuntu 22.04 LTS**  
+- 🌐 Required ports are available  
+- 💾 Sufficient disk space available  
+- 🔐 Root or sudo access  
+
+---
+
+## ⚡ Quick Reference
+
+- ⏱️ **Installation time**: ~30 minutes  
+- 🌍 **Network**: Story Mainnet or Story Aeneid Testnet  
+- 📦 **Required versions**:  
+  ➤ Check Latest Release
+
+---
+
+## 1. System Preparation
+
+### 1.1 System Requirements
+
+For optimal performance and reliability, we recommend running your node on either:
+- A Virtual Private Server (VPS), or  
+- A dedicated Linux-based machine
+
+#### 💻 System Specs
+
+| Hardware  | Minimal Requirement     |
+|-----------|--------------------------|
+| CPU       | Dedicated 8 Cores        |
+| RAM       | 32 GB                    |
+| Disk      | 500 GB NVMe Drive        |
+| Bandwidth | 25 MBit/s                |
+
+---
+
+### 1.2 Required Ports
+
+Ensure all necessary ports are **open and accessible** as described below:
+
+#### 🔌 story-geth
+
+| Port   | Description                                                                 |
+|--------|-----------------------------------------------------------------------------|
+| 8545   | Required if you want your node to interface via JSON-RPC API over HTTP     |
+| 8546   | Required for WebSocket interaction                                          |
+| 30303  | (TCP + UDP) MUST be open for peer-to-peer communication                    |
+
+#### 🔌 story
+
+| Port   | Description                                                                 |
+|--------|-----------------------------------------------------------------------------|
+| 26656  | MUST be open for consensus p2p communication                                |
+| 26657  | Required if you want your node interfacing for Tendermint RPC              |
+| 26660  | Needed if you want to expose Prometheus metrics                            |
+
+---
+
+_Continue with installation steps…_

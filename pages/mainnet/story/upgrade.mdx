@@ -1,157 +1,71 @@
-### Manual Installation
-
+### Manual upgrade
 ```bash
-# install dependencies, if needed
-sudo apt update && sudo apt upgrade -y
-sudo apt install curl git wget htop tmux build-essential jq make lz4 gcc unzip -y
-```
-```bash
-# install go, if needed
-cd $HOME
-VER="1.22.5"
-wget "https://golang.org/dl/go$VER.linux-amd64.tar.gz"
-sudo rm -rf /usr/local/go
-sudo tar -C /usr/local -xzf "go$VER.linux-amd64.tar.gz"
-rm "go$VER.linux-amd64.tar.gz"
-[ ! -f ~/.bash_profile ] && touch ~/.bash_profile
-echo "export PATH=$PATH:/usr/local/go/bin:~/go/bin" >> ~/.bash_profile
-source $HOME/.bash_profile
-[ ! -d ~/go/bin ] && mkdir -p ~/go/bin
-
-# set vars
-echo "export MONIKER="test"" >> $HOME/.bash_profile
-echo "export STORY_CHAIN_ID="aeneid"" >> $HOME/.bash_profile
-echo "export STORY_PORT="52"" >> $HOME/.bash_profile
-source $HOME/.bash_profile
-
-# download binaries
-cd $HOME
-rm -rf story-geth
-git clone https://github.com/piplabs/story-geth.git
-cd story-geth
-git checkout v1.0.2
-make geth
-mv build/bin/geth  $HOME/go/bin/
-[ ! -d "$HOME/.story/story" ] && mkdir -p "$HOME/.story/story"
-[ ! -d "$HOME/.story/geth" ] && mkdir -p "$HOME/.story/geth"
-
-# install Story
 cd $HOME
 rm -rf story
 git clone https://github.com/piplabs/story
 cd story
 git checkout v1.2.0
 go build -o story ./client 
-mkdir -p $HOME/go/bin/
-mv $HOME/story/story $HOME/go/bin/
-
-# init story app
-story init --moniker $MONIKER --network $STORY_CHAIN_ID
-
-# set seeds and peers
-SEEDS="46b7995b0b77515380000b7601e6fc21f783e16f@story-testnet-seed.itrocket.net:52656"
-PEERS="01f8a2148a94f0267af919d2eab78452c90d9864@story-testnet-peer.itrocket.net:52656,521f141a1ea0e9f23029428b41d3d3cc41862feb@34.76.242.140:26656,eb99dd98a2236fed658134ef9e78b86b58cb16ed@213.239.198.181:52656,84f26098dc3736c501de372c85bb8794a1bd50e5@65.109.69.188:26656,f86435bc0377a9b4dc64b6794f9e6fca3c8dad7a@65.109.71.80:52656,7e311e22cff1a0d39c3758e342fa4c2ee1aea461@188.166.224.194:28656,9d34ab3819aa8baa75589f99138318acfa0045f5@95.217.119.251:30900,32a52b2fd7a512c1a4803ebe0ba25ca53fad434f@88.99.216.51:26656,db6791a8e35dee076de75aebae3c89df8bba3374@65.109.50.22:56656,311cd3903e25ab85e5a26c44510fbc747ab61760@152.53.87.97:36656,39b7dc4b8a061ca4456799598c31db911a795d06@91.72.69.47:26686,40bafe5bf4c0c8913be7299b97b93fd8daecb138@188.68.38.127:20656"
-sed -i -e "/^\[p2p\]/,/^\[/{s/^[[:space:]]*seeds *=.*/seeds = \"$SEEDS\"/}" \
-       -e "/^\[p2p\]/,/^\[/{s/^[[:space:]]*persistent_peers *=.*/persistent_peers = \"$PEERS\"/}" $HOME/.story/story/config/config.toml
-
-# set custom ports in story.toml file
-sed -i.bak -e "s%:1317%:${STORY_PORT}317%g;
-s%:8551%:${STORY_PORT}551%g" $HOME/.story/story/config/story.toml
-
-# set custom ports in config.toml file
-sed -i.bak -e "s%:26658%:${STORY_PORT}658%g;
-s%:26657%:${STORY_PORT}657%g;
-s%:26656%:${STORY_PORT}656%g;
-s%^external_address = \"\"%external_address = \"$(wget -qO- eth0.me):${STORY_PORT}656\"%;
-s%:26660%:${STORY_PORT}660%g" $HOME/.story/story/config/config.toml
-
-# enable prometheus and disable indexing
-sed -i -e "s/prometheus = false/prometheus = true/" $HOME/.story/story/config/config.toml
-sed -i -e "s/^indexer *=.*/indexer = \"null\"/" $HOME/.story/story/config/config.toml
-
-# create geth servie file
-sudo tee /etc/systemd/system/story-geth.service > /dev/null <<EOF
-[Unit]
-Description=Story Geth daemon
-After=network-online.target
-
-[Service]
-User=$USER
-ExecStart=$HOME/go/bin/geth --aeneid --syncmode full --http --http.api eth,net,web3,engine --http.vhosts '*' --http.addr 0.0.0.0 --http.port ${STORY_PORT}545 --authrpc.port ${STORY_PORT}551 --ws --ws.api eth,web3,net,txpool --ws.addr 0.0.0.0 --ws.port ${STORY_PORT}546
-Restart=on-failure
-RestartSec=3
-LimitNOFILE=65535
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# create story service file
-sudo tee /etc/systemd/system/story.service > /dev/null <<EOF
-[Unit]
-Description=Story Service
-After=network.target
-
-[Service]
-User=$USER
-WorkingDirectory=$HOME/.story/story
-ExecStart=$(which story) run
-
-Restart=on-failure
-RestartSec=5
-LimitNOFILE=65535
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# download snapshots
-# backup priv_validator_state.json
-cp $HOME/.story/story/data/priv_validator_state.json $HOME/.story/story/priv_validator_state.json.backup
-
-# remove old data and unpack Story snapshot
-rm -rf $HOME/.story/story/data
-curl https://server-3.itrocket.net/testnet/story/story_2025-05-15_4384439_snap.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.story/story
-
-# restore priv_validator_state.json
-mv $HOME/.story/story/priv_validator_state.json.backup $HOME/.story/story/data/priv_validator_state.json
-
-# delete geth data and unpack Geth snapshot
-rm -rf $HOME/.story/geth/aeneid/geth/chaindata
-mkdir -p $HOME/.story/geth/aeneid/geth
-curl https://server-3.itrocket.net/testnet/story/geth_story_2025-05-15_4384439_snap.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.story/geth/aeneid/geth
-
-# enable and start geth, story
-sudo systemctl daemon-reload
-sudo systemctl enable story story-geth
-sudo systemctl restart story-geth && sleep 5 && sudo systemctl restart story
-
-# check logs
-journalctl -u story -u story-geth -f
+sudo systemctl stop story-geth
+wget -O $(which geth) https://github.com/piplabs/story-geth/releases/download/v1.0.2/geth-linux-amd64
+chmod +x $(which geth)
+sudo systemctl start story-geth
+sudo mv $HOME/story/story $(which story)
+sudo systemctl restart story && sudo journalctl -u story -f
 ```
-
-### Automatic Installation
-
+### Systemd
+<b> Automatic upgrade (systemd)</b>
 ```bash
-source <(curl -s https://itrocket.net/api/testnet/story/story-autoinstall/)
+Don't kill the sessiom with CTRL+C Before update is completed, if you want to disconnect the session use CTRL+B D
 ```
-
-### Cosmovisor Setup
-Install go, if needed:
+```bash
+cd $HOME && \
+rm -rf story && \
+git clone https://github.com/piplabs/story && \
+cd story && \
+git checkout v1.2.0 && \
+go build -o story ./client  && \
+sudo systemctl stop story-geth && \
+wget -O $(which geth) https://github.com/piplabs/story-geth/releases/download/v1.0.2/geth-linux-amd64 && \
+chmod +x $(which geth) && \
+sudo systemctl start story-geth && \
+old_bin_path=$(which story) && \
+home_path=$HOME && \
+rpc_port=$(grep -m 1 -oP '^laddr = "\K[^"]+' "$HOME/.story/story/config/config.toml" | cut -d ':' -f 3) && \
+[[ -z "$rpc_port" ]] && rpc_port=$(grep -oP 'node = "tcp://[^:]+:\K\d+' "$HOME/.story/story/config/client.toml") ; \
+tmux new -s story-upgrade "sudo bash -c 'curl -s https://raw.githubusercontent.com/itrocket-team/testnet_guides/main/utils/autoupgrade/upgrade.sh | bash -s -- -u \"2065886\" -b story -n \"$HOME/story/story\" -o \"$old_bin_path\" -h \"$home_path\" -p \"undefined\" -r \"$rpc_port\"'"
+```
+### Cosmovisor
+<b> Automatic upgrade (Cosmovisor)</b>
+update story-geth:
 ```bash
 cd $HOME
-VER="1.22.5"
-wget "https://golang.org/dl/go$VER.linux-amd64.tar.gz"
-sudo rm -rf /usr/local/go
-sudo tar -C /usr/local -xzf "go$VER.linux-amd64.tar.gz"
-rm "go$VER.linux-amd64.tar.gz"
-[ ! -f ~/.bash_profile ] && touch ~/.bash_profile
-echo "export PATH=$PATH:/usr/local/go/bin:~/go/bin" >> ~/.bash_profile
-source $HOME/.bash_profile
-[ ! -d ~/go/bin ] && mkdir -p ~/go/bin
+sudo systemctl stop story-geth
+wget -O $(which geth) https://github.com/piplabs/story-geth/releases/download/v0.10.1/geth-linux-amd64
+chmod +x $(which geth)
+sudo systemctl start story-geth
 ```
-Create a directory and download the current version of story:
+Creat upgrade folders:
 ```bash
-mkdir -p $HOME/.story/story/cosmovisor/upgrades/v1.2.0/bin
-wget -O $HOME/.story/story/cosmovisor/upgrades/v1.2.0/bin/story https://github.com/piplabs/story/releases/download/v1.2.0/story-linux-amd64
-chmod +x $HOME/.story/story/cosmovisor/upgrades/v1.2.0/bin/story
+cd $HOME
+mkdir -p $HOME/.story/story/cosmovisor/upgrades/v0.13.2/bin
+wget -O $HOME/.story/story/cosmovisor/upgrades/v0.13.2/bin/story https://github.com/piplabs/story/releases/download/v0.13.2/story-linux-amd64
+chmod +x $HOME/.story/story/cosmovisor/upgrades/v0.13.2/bin/story
+```
+
+Create upgrade simlink:
+```bash
+echo '{"name":"v0.13.2","time":"0001-01-01T00:00:00Z","height":2065886}' > $HOME/.story/story/cosmovisor/upgrades/v0.13.2/upgrade-info.json
+```
+Chek upgrade info:
+```bash
+cat $HOME/.story/story/cosmovisor/upgrades/v0.13.2/upgrade-info.json
+```
+Sets up an Automatic upgrade in Cosmovisor:
+```bash
+cosmovisor add-upgrade v0.13.2 $HOME/.story/story/cosmovisor/upgrades/v0.13.2/bin/story --force --upgrade-height 2065886
+```
+Check upgrade info:
+```bash
+cosmovisor show-upgrade-info
 ```
