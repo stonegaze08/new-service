@@ -7,13 +7,13 @@
   Official Documentation
 </a>
 
-```bash
+```bash copy
 # install dependencies, if needed
 sudo apt update && sudo apt upgrade -y
 sudo apt install curl git wget htop tmux build-essential jq make lz4 gcc unzip -y
 ```
 
-```bash
+```bash copy
 # install go, if needed
 cd $HOME
 VER="1.22.5"
@@ -138,13 +138,13 @@ journalctl -u story -u story-geth -f
 ```
 
 ### Automatic installation
-```bash
+```bash copy
 source <(curl -s https://itrocket.net/api/testnet/story/story-autoinstall/)
 ```
 
 ### Cosmovisor setup
 install go, if needed:
-```bash
+```bash copy
 cd $HOME
 VER="1.22.5"
 wget "https://golang.org/dl/go$VER.linux-amd64.tar.gz"
@@ -158,7 +158,7 @@ source $HOME/.bash_profile
 ```
 
 install and init Cosmovisor:
-```bash
+```bash copy
 go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@latest
 echo "export DAEMON_NAME="story"" >> $HOME/.bash_profile
 echo "export DAEMON_HOME="$HOME/.story/story"" >> $HOME/.bash_profile
@@ -167,14 +167,14 @@ cosmovisor init $(which story)
 ```
 
 Creat a directory and download the current version of Story
-```bash
+```bash copy
 mkdir -p $HOME/.story/story/cosmovisor/upgrades/v1.2.0/bin
 wget -O $HOME/.story/story/cosmovisor/upgrades/v1.2.0/bin/story https://github.com/piplabs/story/releases/download/v1.2.0/story-linux-amd64
 chmod +x $HOME/.story/story/cosmovisor/upgrades/v1.2.0/bin/story
 ```
 
 Update service file:
-```bash
+```bash copy
 sudo tee /etc/systemd/system/story.service > /dev/null << EOF
 [Unit]
 Description=story node service
@@ -197,7 +197,7 @@ WantedBy=multi-user.target
 EOF
 ```
 Enable and start Story using Cosmovisor:
-```bash
+```bash copy
 sudo systemctl daemon-reload
 sudo systemctl enable story
 sudo systemctl restart story && sudo journalctl -u story -f
@@ -205,43 +205,43 @@ sudo systemctl restart story && sudo journalctl -u story -f
 
 ### Creat Validator
 view your validator key
-```bash
+```bash copy
 story validator export
 ```
 Export EVM private key
-```bash
+```bash copy
 story validator export --export-evm-key
 ```
 View EVM private key and make a key backup
-```bash
+```bash copy
 cat $HOME/.story/story/config/private_key.txt
 ```
 Use this private key to import your account into a wallet, e.g. Metamask or Phantom. Add the aeneid testnet to your wallet via faucet. Then, copy your 'EVM address' from the wallet and request $IP tokens. Now you can see the balance and make transactions in the wallet app.
 
 Before creating a validator, wait for your node to get fully synced. Once "catching_up" is "false", move on to the next step
-```bash
+```bash copy
 curl localhost:$(sed -n '/\[rpc\]/,/laddr/ { /laddr/ {s/.*://; s/".*//; p} }' $HOME/.story/story/config/config.toml)/status | jq
 ```
 Creat validator, locked
-```bash
+```bash copy
 story validator create --stake 1024000000000000000000 --moniker $MONIKER --chain-id 1315 --unlocked=false
 ```
 Creat validator, unlocked
-```bash
+```bash copy
 story validator create --stake 1024000000000000000000 --moniker $MONIKER --chain-id 1315 --unlocked=true
 ```
 Remember to backup your validator priv_key from here:
-```bash
+```bash copy
 cat $HOME/.story/story/config/priv_validator_key.json
 ```
 ### Firwall rules
 configure firewall rules:
-```bash
+```bash copy
 sudo ufw allow 30303/tcp comment geth_p2p_port
 sudo ufw allow 26656/tcp comment story_p2p_port
 ```
 ### Delete node
-```bash
+```bash copy
 sudo systemctl stop story story-geth
 sudo systemctl disable story story-geth
 rm -rf $HOME/.story

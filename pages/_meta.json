@@ -7,9 +7,11 @@
       "title": "NODE INSTALLATION",
       "type": "page"
     },
-    "testnet": {
-      "title": "ARTICLE",
-      "type": "page"
+    "blog": {
+      "title": "BLOG",
+      "type": "page",
+      "href": "https://explorer.stonegaze.net",
+      "newWindow": true
     },
     "explorer": {
         "title": "EXPLORER",
