@@ -1,46 +1,30 @@
-# Snapshot (pruned)
-```bash
-# install dependencies, and disable statesync to avoid sync issues
-sudo apt install curl tmux jq lz4 unzip -y
-sed -i.bak -E "s|^(enable[[:space:]]+=[[:space:]]+).*$|\1false|" $HOME/.story/story/config/config.toml
+Snapshots allows a new node to join the network by recovering application state from a backup file. Snapshot contains compressed copy of chain data directory. To keep backup files as small as plausible, snapshot server is periodically beeing state-synced.
 
-# stop node and backup priv_validator_state.json
-sudo systemctl stop story story-geth
-cp $HOME/.story/story/data/priv_validator_state.json $HOME/.story/story/priv_validator_state.json.backup
+Snapshots are taken automatically every 6 hours starting at 01:15 UTC
 
-# remove old data and unpack Story snapshot
-rm -rf $HOME/.story/story/data
-curl https://server-3.itrocket.net/testnet/story/story_2025-05-17_4463582_snap.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.story/story
+| <b>Pruning</b>       | <b>Indexer</b>                    | <b>Version Tag</b> |
+|------------------|-----------------------------------------|-----------------
+| 100/0/19	     | 	null        | 169 |	v1.0.0 
 
-# restore priv_validator_state.json
-mv $HOME/.story/story/priv_validator_state.json.backup $HOME/.story/story/data/priv_validator_state.json
+| <b>Block	</b>       | <b>Age</b>                    | <b>Download</b> |
+|------------------|-----------------------------------------|-----------------
+| 1411106   | 	2 hours	       |<a href="https://snapshots.kjnodes.com/lumera-testnet/snapshot_latest.tar.lz4" style={{ color: " #00FF00" }}>snapshot (1.59 GB) with sha256sum</a>|	
 
-# delete geth data and unpack Geth snapshot
-rm -rf $HOME/.story/geth/aeneid/geth/chaindata
-curl https://server-3.itrocket.net/testnet/story/geth_story_2025-05-17_4463582_snap.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.story/geth/aeneid/geth
-
-# restart node and check logs
-sudo systemctl restart story story-geth
-sudo journalctl -u story-geth -u story -f
+### Stop the service
+```bash copy
+sudo systemctl stop lumera-testnet.service
 ```
-### <b>(If an error occurs, you can use another version.)</b>
-```bash
-# stop node and backup priv_validator_state.json
-sudo systemctl stop story story-geth
-cp $HOME/.story/story/data/priv_validator_state.json $HOME/.story/story/priv_validator_state.json.backup
-
-# remove old data and unpack Story snapshot
-rm -rf $HOME/.story/story/data
-curl https://snapshots.coinhunterstr.com/testnet/story/story/story_snapshot_latest.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.story/story
-
-# restore priv_validator_state.json
-mv $HOME/.story/story/priv_validator_state.json.backup $HOME/.story/story/data/priv_validator_state.json
-
-# delete geth data and unpack Geth snapshot
-rm -rf $HOME/.story/geth/story/geth/chaindata
-curl https://snapshots.coinhunterstr.com/testnet/story/story-geth/story_geth_snapshot_latest.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.story/geth/story/geth
-
-# restart node and check logs
-sudo systemctl restart story story-geth
-sudo journalctl -u story-geth -u story -f
+### Reset the data and save validator state
+```bash copy
+cp $HOME/.lumera/data/priv_validator_state.json $HOME/.lumera/priv_validator_state.json.backup
+rm -rf $HOME/.lumera/data
+```
+### Download latest snapshot and recover validator state
+```bash copy
+curl -L https://snapshots.kjnodes.com/lumera-testnet/snapshot_latest.tar.lz4 | tar -Ilz4 -xf - -C $HOME/.lumera
+mv $HOME/.lumera/priv_validator_state.json.backup $HOME/.lumera/data/priv_validator_state.json
+```
+### Restart the service and check the log
+```bash copy
+sudo systemctl start lumera-testnet.service && sudo journalctl -fu lumera-testnet.service -o cat
 ```

@@ -33,7 +33,7 @@ export default {
   },
   logo: (
     <>
-      <img height="60" width="60" src="/logo-noback.png" alt=""></img>
+      <img height="60" width="60" src="/logo_stonegaze_nobg.png" alt=""></img>
       <span style={{ marginLeft: '.0em', fontWeight: 600, fontSize:27 }}>
        StoneGaze
       </span>

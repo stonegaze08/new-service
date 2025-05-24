@@ -1,154 +1,272 @@
-Official docs: https://docs.story.foundation/introduction
+# 🔑 Key management
 
-# Service operations 
-
-
-<div style={{ display: 'flex', gap: '16px' }}>
-  <div style={{ flex: 1 }}>
-     Check logs
-    ```bash
-    sudo journalctl -u story -f
-    ```
-  </div>
-  <div style={{ flex: 1 }}>
-     Check service status
-    ```bash
-    sudo systemctl status story
-    ```
-  </div>
+### ADD NEW Key
+```bash copy
+lumerad keys add wallet
+```
+### Recover existing key
+```bash copy
+lumerad keys add wallet --recover
+```
+### List all keys
+```bash copy
+lumerad keys list
+```
+### Delete key
+```bash copy
+lumerad keys delete wallet
+```
+### Export key to a file
+```bash copy
+lumerad keys export wallet
+```
+### Import key from a file
+```bash copy
+lumerad keys import wallet wallet.backup
+```
+### Query wallet balance
+```bash copy
+lumerad q bank balances $(lumerad keys show wallet -a)
+```
+# 👷 Validator management
+<div style={{ backgroundColor: "#2E1A47", color: "white", padding: "10px", borderRadius: "5px" }}>
+  Please make sure you have adjusted moniker, identity, details and website to match your values.
 </div>
 
-<div style={{ display: 'flex', gap: '16px' }}>
-  <div style={{ flex: 1 }}>
-     Start service
-    ```bash
-    sudo systemctl start story
-    ```
-  </div>
-  <div style={{ flex: 1 }}>
-     Reload service
-    ```bash
-    sudo systemctl daemon-reload
-    ```
-  </div>
+### Create new validator
+```bash copy
+lumerad tx staking create-validator <(cat <<EOF
+{
+  "pubkey": $(lumerad comet show-validator),
+  "amount": "1000000ulume",
+  "moniker": "YOUR_MONIKER_NAME",
+  "identity": "YOUR_KEYBASE_ID",
+  "website": "YOUR_WEBSITE_URL",
+  "security": "YOUR_SECURITY_EMAIL",
+  "details": "YOUR_DETAILS",
+  "commission-rate": "0.05",
+  "commission-max-rate": "0.20",
+  "commission-max-change-rate": "0.05",
+  "min-self-delegation": "1"
+}
+EOF
+) \
+--chain-id lumera-testnet-1 \
+--from wallet \
+--gas-adjustment 1.4 \
+--gas auto \
+--gas-prices 0.025ulume \
+-y
+```
+### Edit existing validator
+```bash copy
+lumerad tx staking edit-validator \
+--new-moniker "YOUR_MONIKER_NAME" \
+--identity "YOUR_KEYBASE_ID" \
+--details "YOUR_DETAILS" \
+--website "YOUR_WEBSITE_URL" \
+--chain-id lumera-testnet-1 \
+--commission-rate 0.05 \
+--from wallet \
+--gas-adjustment 1.4 \
+--gas auto \
+--gas-prices 0.025ulume \
+-y
+```
+### Unjail validator
+```bash copy
+lumerad tx slashing unjail --from wallet --chain-id lumera-testnet-1 --gas-adjustment 1.4 --gas auto --gas-prices 0.025ulume -y
+```
+### Jail reason
+```bash copy
+lumerad query slashing signing-info $(lumerad comet show-validator)
+```
+### List all active validators
+```bash copy
+lumerad q staking validators -oj --limit=3000 | jq '.validators[] | select(.status=="BOND_STATUS_BONDED")' | jq -r '(.tokens|tonumber/pow(10; 6)|floor|tostring) + " \t " + .description.moniker' | sort -gr | nl
+```
+### List all inactive validators
+```bash copy
+lumerad q staking validators -oj --limit=3000 | jq '.validators[] | select(.status=="BOND_STATUS_UNBONDED")' | jq -r '(.tokens|tonumber/pow(10; 6)|floor|tostring) + " \t " + .description.moniker' | sort -gr | nl
+```
+### View validator details
+```bash copy
+lumerad q staking validator $(lumerad keys show wallet --bech val -a)
+```
+# 💲 Token management
+### Withdraw rewards from all validators
+```bash coppy
+lumerad tx distribution withdraw-all-rewards --from wallet --chain-id lumera-testnet-1 --gas-adjustment 1.4 --gas auto --gas-prices 0.025ulume -y
+```
+### Withdraw commission and rewards from your validator
+```bash coppy
+lumerad tx distribution withdraw-rewards $(lumerad keys show wallet --bech val -a) --commission --from wallet --chain-id lumera-testnet-1 --gas-adjustment 1.4 --gas auto --gas-prices 0.025ulume -y
+```
+### Delegate tokens to yourself
+```bash coppy
+lumerad tx staking delegate $(lumerad keys show wallet --bech val -a) 1000000ulume --from wallet --chain-id lumera-testnet-1 --gas-adjustment 1.4 --gas auto --gas-prices 0.025ulume -y
+```
+### Delegate tokens to validator
+```bash coppy
+lumerad tx staking delegate <TO_VALOPER_ADDRESS> 1000000ulume --from wallet --chain-id lumera-testnet-1 --gas-adjustment 1.4 --gas auto --gas-prices 0.025ulume -y
+```
+### Redelegate tokens to another validator
+```bash coppy
+lumerad tx staking redelegate $(lumerad keys show wallet --bech val -a) <TO_VALOPER_ADDRESS> 1000000ulume --from wallet --chain-id lumera-testnet-1 --gas-adjustment 1.4 --gas auto --gas-prices 0.025ulume -y
+```
+### Unbond tokens from your validator
+```bash coppy
+lumerad tx staking unbond $(lumerad keys show wallet --bech val -a) 1000000ulume --from wallet --chain-id lumera-testnet-1 --gas-adjustment 1.4 --gas auto --gas-prices 0.025ulume -y
+```
+### Send tokens to the wallet
+```bash coppy
+lumerad tx bank send wallet <TO_WALLET_ADDRESS> 1000000ulume --from wallet --chain-id lumera-testnet-1 --gas-adjustment 1.4 --gas auto --gas-prices 0.025ulume -y
+```
+# 🗳 Governance
+
+### List all proposals
+```bash
+lumerad query gov proposals
+```
+### View proposal by id
+```bash coppy
+lumerad query gov proposal 1
+```
+### Vote ‘Yes’
+```bash coppy
+lumerad tx gov vote 1 yes --from wallet --chain-id lumera-testnet-1 --gas-adjustment 1.4 --gas auto --gas-prices 0.025ulume -y
+```
+### Vote ‘No’
+```bash coppy
+lumerad tx gov vote 1 no --from wallet --chain-id lumera-testnet-1 --gas-adjustment 1.4 --gas auto --gas-prices 0.025ulume -y
+```
+### Vote ‘Abstain’
+```bash coppy
+lumerad tx gov vote 1 abstain --from wallet --chain-id lumera-testnet-1 --gas-adjustment 1.4 --gas auto --gas-prices 0.025ulume -y
+```
+### Vote ‘NoWithVeto’
+```bash coppy
+lumerad tx gov vote 1 NoWithVeto --from wallet --chain-id lumera-testnet-1 --gas-adjustment 1.4 --gas auto --gas-prices 0.025ulume -y
+```
+
+#⚡️ Utility
+### Update ports
+```bash coppy
+CUSTOM_PORT=110
+sed -i -e "s%^proxy_app = \"tcp://127.0.0.1:26658\"%proxy_app = \"tcp://127.0.0.1:${CUSTOM_PORT}58\"%; s%^laddr = \"tcp://127.0.0.1:26657\"%laddr = \"tcp://127.0.0.1:${CUSTOM_PORT}57\"%; s%^pprof_laddr = \"localhost:6060\"%pprof_laddr = \"localhost:${CUSTOM_PORT}60\"%; s%^laddr = \"tcp://0.0.0.0:26656\"%laddr = \"tcp://0.0.0.0:${CUSTOM_PORT}56\"%; s%^prometheus_listen_addr = \":26660\"%prometheus_listen_addr = \":${CUSTOM_PORT}66\"%" $HOME/.lumera/config/config.toml
+sed -i -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:${CUSTOM_PORT}17\"%; s%^address = \":8080\"%address = \":${CUSTOM_PORT}80\"%; s%^address = \"0.0.0.0:9090\"%address = \"0.0.0.0:${CUSTOM_PORT}90\"%; s%^address = \"0.0.0.0:9091\"%address = \"0.0.0.0:${CUSTOM_PORT}91\"%" $HOME/.lumera/config/app.toml
+```
+
+### Update Indexer
+### <b>Disable indexer</b>
+```bash coppy
+sed -i -e 's|^indexer *=.*|indexer = "null"|' $HOME/.lumera/config/config.toml
+```
+
+### Enable indexer
+```bash coppy
+sed -i -e 's|^indexer *=.*|indexer = "kv"|' $HOME/.lumera/config/config.toml
+```
+
+### Update pruning
+```bash coppy
+sed -i \
+  -e 's|^pruning *=.*|pruning = "custom"|' \
+  -e 's|^pruning-keep-recent *=.*|pruning-keep-recent = "100"|' \
+  -e 's|^pruning-keep-every *=.*|pruning-keep-every = "0"|' \
+  -e 's|^pruning-interval *=.*|pruning-interval = "19"|' \
+  $HOME/.lumera/config/app.toml
+```
+
+# 🚨 Maintenance
+### Get validator info
+```bash coppy
+lumerad status 2>&1 | jq .ValidatorInfo
+```
+
+### Get sync info
+```bash coppy
+lumerad status 2>&1 | jq .SyncInfo
+```
+
+### Get node peer
+```bash coppy
+echo $(lumerad comet show-node-id)'@'$(curl -4s ifconfig.me)':'$(cat $HOME/.lumera/config/config.toml | sed -n '/Address to listen for incoming connection/{n;p;}' | sed 's/.*://; s/".*//')
+```
+
+### Check if validator key is correct
+```bash coppy
+[[ $(lumerad q staking validator $(lumerad keys show wallet --bech val -a) -oj | jq -r .consensus_pubkey.key) = $(lumerad status | jq -r .ValidatorInfo.PubKey.value) ]] && echo -e "\n\e[1m\e[32mTrue\e[0m\n" || echo -e "\n\e[1m\e[31mFalse\e[0m\n"
+```
+
+### Get live peers
+```bash coppy
+curl -sS http://localhost:16957/net_info | jq -r '.result.peers[] | "\(.node_info.id)@\(.remote_ip):\(.node_info.listen_addr)"' | awk -F ':' '{print $1":"$(NF)}'
+```
+
+### Set minimum gas price
+```bash coppy
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.025ulume\"/" $HOME/.lumera/config/app.toml
+```
+
+### Enable prometheus
+```bash coppy
+sed -i -e "s/prometheus = false/prometheus = true/" $HOME/.lumera/config/config.toml
+```
+
+### Reset chain data
+```bash coppy
+lumerad comet unsafe-reset-all --keep-addr-book --home $HOME/.lumera --keep-addr-book
+```
+
+### <b> Remove node</b>
+
+<div style={{ backgroundColor: "#FF0000", color: "white", padding: "10px", borderRadius: "5px" }}>
+  Please, before proceeding with the next step! All chain data will be lost! Make sure you have backed up your priv_validator_key.json!
+
 </div>
 
-<div style={{ display: 'flex', gap: '16px' }}>
-  <div style={{ flex: 1 }}>
-    Stop service
-    ```bash
-    sudo systemctl stop story
-    ```
-  </div>
-  <div style={{ flex: 1 }}>
-    Enable Service
-    ```bash
-    sudo systemctl enable story
-    ```
-  </div>
-</div>
-
-<div style={{ display: 'flex', gap: '16px' }}>
-  <div style={{ flex: 1 }}>
-    Restart service
-    ```bash
-    sudo systemctl restart story
-    ```
-  </div>
-  <div style={{ flex: 1 }}>
-   Disable Service
-    ```bash
-    sudo systemctl disable story
-    ```
-  </div>
-</div>
-
-Node info
-```bash
-curl localhost:$(sed -n '/\[rpc\]/,/laddr/ { /laddr/ {s/.*://; s/".*//; p} }' $HOME/.story/story/config/config.toml)/status | jq
-```
-Your node peer
-```bash
-echo "$(curl localhost:$(sed -n '/\[rpc\]/,/laddr/ { /laddr/ {s/.*://; s/".*//; p} }' $HOME/.story/story/config/config.toml)/status | jq -r '.result.node_info.id')@$(wget -qO- eth0.me):$(sed -n '/Address to listen for incoming connection/{n;p;}' $HOME/.story/story/config/config.toml | sed 's/.*://; s/".*//')"
-```
-Your enode
-```bash
-geth --exec "admin.nodeInfo.enode" attach ~/.story/geth/aeneid/geth.ipc
-```
-# Staking
-Delegate to yourself
-```bash
-story validator stake --chain-id 1315 --validator-pubkey $(story validator export | grep "Compressed Public Key (hex)" | awk '{print $NF}') --stake 1000000000000000000 --private-key $(cat $HOME/.story/story/config/private_key.txt | grep "PRIVATE_KEY" | awk -F'=' '{print $2}')
-```
-Delegate
-```bash
-story validator stake --chain-id 1315 --validator-pubkey <VALIDATOR_PUB_KEY_IN_HEX> --stake 1000000000000000000 --private-key $(cat $HOME/.story/story/config/private_key.txt | grep "PRIVATE_KEY" | awk -F'=' '{print $2}')
-```
-Delegate on behalf of other delegator
-```bash
-story validator stake-on-behalf --chain-id 1315 --validator-pubkey <VALIDATOR_PUB_KEY_IN_HEX> --delegator-pubkey <DELEGATOR_PUB_KEY_IN_HEX> --stake 1000000000000000000 --private-key $(cat $HOME/.story/story/config/private_key.txt | grep "PRIVATE_KEY" | awk -F'=' '{print $2}')
-```
-Add operator
-```bash
-story validator add-operator --chain-id 1315 --operator <OPERATOR_EVM_ADDRESS> --private-key $(cat $HOME/.story/story/config/private_key.txt | grep "PRIVATE_KEY" | awk -F'=' '{print $2}')
-```
-Unstake from yourself
-```bash
-story validator unstake --chain-id 1315 --validator-pubkey $(story validator export | grep "Compressed Public Key (hex)" | awk '{print $NF}') --unstake 1000000000000000000 --private-key $(cat $HOME/.story/story/config/private_key.txt | grep "PRIVATE_KEY" | awk -F'=' '{print $2}')
-```
-Unstake
-```bash
-story validator unstake --chain-id 1315 --validator-pubkey <VALIDATOR_PUB_KEY_IN_HEX> --unstake 1000000000000000000 --private-key $(cat $HOME/.story/story/config/private_key.txt | grep "PRIVATE_KEY" | awk -F'=' '{print $2}')
-```
-Unstake on behalf of other delegator. To do so, you must be a registered authorized operator for this delegator.
-```bash
-story validator unstake-on-behalf --chain-id 1315 --validator-pubkey <VALIDATOR_PUB_KEY_IN_HEX> --delegator-pubkey <DELEGATOR_PUB_KEY_IN_HEX> --unstake 1000000000000000000 --private-key $(cat $HOME/.story/story/config/private_key.txt | grep "PRIVATE_KEY" | awk -F'=' '{print $2}')
-```
-Remove operator
-```bash
-story validator remove-operator --operator <OPERATOR_EVM_ADDRESS> --private-key $(cat $HOME/.story/story/config/private_key.txt | grep "PRIVATE_KEY" | awk -F'=' '{print $2}')
-```
-Set or change withdrawal address
-```bash
-story validator set-withdrawal-address --withdrawal-address <YOUR_EVM_ADDRESS> --private-key $(cat $HOME/.story/story/config/private_key.txt | grep "PRIVATE_KEY" | awk -F'=' '{print $2}')
+```bash copy
+cd $HOME
+sudo systemctl stop lumera-testnet.service
+sudo systemctl disable lumera-testnet.service
+sudo rm /etc/systemd/system/lumera-testnet.service
+sudo systemctl daemon-reload
+rm -f $(which lumerad)
+rm -rf $HOME/.lumera
+rm -rf $HOME/lumera
 ```
 
-###
-
-# Validator operations 
-validator info
-```bash
-curl localhost:$(sed -n '/\[rpc\]/,/laddr/ { /laddr/ {s/.*://; s/".*//; p} }' $HOME/.story/story/config/config.toml)/status | jq
+# ⚙️ Service Management
+### Reload service configuration
+```bash copy
+sudo systemctl daemon-reload
 ```
-Check Validator public key
-```bash
-story validator export
+### Enable service
+```bash copy
+sudo systemctl enable lumera-testnet.service
 ```
-Check Validator private key
-```bash
-cat $HOME/.story/story/config/private_key.txt
+### Disable service
+```bash copy
+sudo systemctl disable lumera-testnet.service
 ```
-
-###
-
-# Geth commands
-Check the latest block
-```bash
-geth --exec "eth.blockNumber" attach ~/.story/geth/aeneid/geth.ipc
+### Start service
+```bash copy
+sudo systemctl start lumera-testnet.service
 ```
-Peers your client is connected to
-```bash
-geth --exec "admin.peers" attach ~/.story/geth/aeneid/geth.ipc
+### Stop service
+```bash copy
+sudo systemctl stop lumera-testnet.service
 ```
-Check if syncing is still in progress: will output "true" if geth is syncing
-```bash
-geth --exec "eth.syncing" attach ~/.story/geth/aeneid/geth.ipc
+### Restart service
+```bash copy
+sudo systemctl restart lumera-testnet.service
 ```
-Check gas price
-```bash
-geth --exec "eth.gasPrice" attach ~/.story/geth/aeneid/geth.ipc
+### Check service status
+```bash copy
+sudo systemctl status lumera-testnet.service
 ```
-Check account balance
-```bash
-geth --exec "eth.getBalance('<YOUR_EVM_ADDRESS>')" attach ~/.story/geth/aeneid/geth.ipc
+### Check service logs
+```bash copy
+sudo journalctl -u lumera-testnet.service -f --no-hostname -o cat
 ```

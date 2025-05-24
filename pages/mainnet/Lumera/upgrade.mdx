@@ -1,71 +1,10 @@
-### Manual upgrade
-```bash
-cd $HOME
-rm -rf story
-git clone https://github.com/piplabs/story
-cd story
-git checkout v1.2.0
-go build -o story ./client 
-sudo systemctl stop story-geth
-wget -O $(which geth) https://github.com/piplabs/story-geth/releases/download/v1.0.2/geth-linux-amd64
-chmod +x $(which geth)
-sudo systemctl start story-geth
-sudo mv $HOME/story/story $(which story)
-sudo systemctl restart story && sudo journalctl -u story -f
-```
-### Systemd
-<b> Automatic upgrade (systemd)</b>
-```bash
-Don't kill the sessiom with CTRL+C Before update is completed, if you want to disconnect the session use CTRL+B D
-```
-```bash
-cd $HOME && \
-rm -rf story && \
-git clone https://github.com/piplabs/story && \
-cd story && \
-git checkout v1.2.0 && \
-go build -o story ./client  && \
-sudo systemctl stop story-geth && \
-wget -O $(which geth) https://github.com/piplabs/story-geth/releases/download/v1.0.2/geth-linux-amd64 && \
-chmod +x $(which geth) && \
-sudo systemctl start story-geth && \
-old_bin_path=$(which story) && \
-home_path=$HOME && \
-rpc_port=$(grep -m 1 -oP '^laddr = "\K[^"]+' "$HOME/.story/story/config/config.toml" | cut -d ':' -f 3) && \
-[[ -z "$rpc_port" ]] && rpc_port=$(grep -oP 'node = "tcp://[^:]+:\K\d+' "$HOME/.story/story/config/client.toml") ; \
-tmux new -s story-upgrade "sudo bash -c 'curl -s https://raw.githubusercontent.com/itrocket-team/testnet_guides/main/utils/autoupgrade/upgrade.sh | bash -s -- -u \"2065886\" -b story -n \"$HOME/story/story\" -o \"$old_bin_path\" -h \"$home_path\" -p \"undefined\" -r \"$rpc_port\"'"
-```
-### Cosmovisor
-<b> Automatic upgrade (Cosmovisor)</b>
-update story-geth:
-```bash
-cd $HOME
-sudo systemctl stop story-geth
-wget -O $(which geth) https://github.com/piplabs/story-geth/releases/download/v0.10.1/geth-linux-amd64
-chmod +x $(which geth)
-sudo systemctl start story-geth
-```
-Creat upgrade folders:
-```bash
-cd $HOME
-mkdir -p $HOME/.story/story/cosmovisor/upgrades/v0.13.2/bin
-wget -O $HOME/.story/story/cosmovisor/upgrades/v0.13.2/bin/story https://github.com/piplabs/story/releases/download/v0.13.2/story-linux-amd64
-chmod +x $HOME/.story/story/cosmovisor/upgrades/v0.13.2/bin/story
+# Download binaries
+
+```bash copy
+# Download project binaries
+mkdir -p $HOME/.lumera/cosmovisor/upgrades/v1.0.0/bin
+wget -O $HOME/.lumera/cosmovisor/upgrades/v1.0.0/bin/lumerad https://snapshots.kjnodes.com/lumera-testnet/lumerad_v1.0.1-linux-amd64
+chmod +x $HOME/.lumera/cosmovisor/upgrades/v1.0.0/bin/lumerad
 ```
 
-Create upgrade simlink:
-```bash
-echo '{"name":"v0.13.2","time":"0001-01-01T00:00:00Z","height":2065886}' > $HOME/.story/story/cosmovisor/upgrades/v0.13.2/upgrade-info.json
-```
-Chek upgrade info:
-```bash
-cat $HOME/.story/story/cosmovisor/upgrades/v0.13.2/upgrade-info.json
-```
-Sets up an Automatic upgrade in Cosmovisor:
-```bash
-cosmovisor add-upgrade v0.13.2 $HOME/.story/story/cosmovisor/upgrades/v0.13.2/bin/story --force --upgrade-height 2065886
-```
-Check upgrade info:
-```bash
-cosmovisor show-upgrade-info
-```
+<b>Thats it! Now when upgrade block height is reached, Cosmovisor will handle it automatically!</b>
