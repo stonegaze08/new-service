@@ -1,4 +1,4 @@
-PM2_NAME := new-service
+PM2_NAME := Explorer-stonegaze
 
 install:
 	@echo "Installing dependencies..."
