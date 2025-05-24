@@ -27,7 +27,7 @@ export default {
           property="og:description"
           content={frontMatter.description || 'Service tools node testnet & mainnet & guide'}
         />
-        <link rel="shortcut icon" href="/logo-fav-back.png" type="image/x-icon"></link>
+        <link rel="shortcut icon" href="/logo-fav-back.ico" type="image/x-icon"></link>
       </>
     )
   },
