@@ -20,4 +20,4 @@ restart-pm2:
 	@pm2 restart $(PM2_NAME)
 	@echo "Apps restarted."
 
-restart: pull build restart-pm2
+restart: pull install build restart-pm2
