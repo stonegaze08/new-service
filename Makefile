@@ -20,4 +20,9 @@ restart-pm2:
 	@pm2 restart $(PM2_NAME)
 	@echo "Apps restarted."
 
-restart: pull install build restart-pm2
+delete-next-folder:
+	@echo "Delete .next folder..."
+	@rm -rf .next
+	@echo "Delete success."
+
+restart: pull install delete-next-folder build restart-pm2
