@@ -1,0 +1,57 @@
+# RPC, API, gRPC
+<b> RPC : https://pell-testnet-rpc.itrocket.net </b>
+<b> API : https://pell-testnet-api.itrocket.net </b>
+<b> gRPC: </b>
+```bash copy
+pell-testnet-grpc.itrocket.net:443
+```
+
+# Peers, Seeds, Live Peers, Addrbook
+
+### peers:
+```bash copy
+d003cb808ae91bad032bb94d19c922fe094d8556@pell-testnet-peer.itrocket.net:58656
+```
+### seeds:
+```bash copy
+5f10959cc96b5b7f9e08b9720d9a8530c3d08d19@pell-testnet-seed.itrocket.net:58656
+```
+### live peers: (11 active)
+```bash copy
+PEERS="d003cb808ae91bad032bb94d19c922fe094d8556@pell-testnet-peer.itrocket.net:58656,2b2932bd000204b75d2675d84e0e6e690fcc9b41@31.165.179.107:26656,739d38ce19e4d2b22eb77016f91bf468e93c22af@37.252.186.230:26656,91a02af99b3ab4fd0e7b24139d7e30b94fa117c4@65.108.0.88:12356,f487313950783ed57c5fcb9be1998b50a41bd931@37.27.127.220:57656,f1049cc2be2902053bcf5ea1a553414d8a978ef6@[2a01:4f8:110:4265::11]:26656,81caef1e38e18974813624aea310722ad68a33dd@65.109.27.148:26656,dce9d17f8c2dcc75a7946f11a2e4ac9295614b78@145.239.9.196:26656,73270186a4ed6a4136a2c02274867c0c41c304dd@46.4.91.76:30356,54e6743cb3d05fdaf71f06f2f05728c62358f802@176.9.8.81:11856,2bb156446731e08192063569fa02e783c4345141@135.181.139.249:37656"
+sed -i -e "/^\[p2p\]/,/^\[/{s/^[[:space:]]*persistent_peers *=.*/persistent_peers = \"$PEERS\"/}" $HOME/.pellcored/config/config.toml
+```
+### peers scanner:
+
+<div style={{ backgroundColor: "#2E1A47", color: "white", padding: "10px", borderRadius: "5px" }}>
+  Stale peers can lead to node inefficiency over time. Below are 20 active peers found by our network scanner. These are verified for decent uptime in real time.
+</div>
+
+
+```bash copy
+PEERS="d003cb808ae91bad032bb94d19c922fe094d8556@pell-testnet-rpc.itrocket.net:58656,d003cb808ae91bad032bb94d19c922fe094d8556@65.108.193.254:58656,aba4753565ed10cd397a640b3ccbb68d875985c1@95.216.13.161:58656,c9271f5c59d84c71d8cbbed00a01ebb517543c8f@65.109.79.44:31656,05aeafb0fc231c0aa267c43abca2a54ca5353f38@65.109.24.32:15656,2408324c02b3c8223398116e1213338db79e4c8e@65.108.14.235:57656,78d89ac4ef91fd92bd97769891711ca58bd7f512@pell-t-rpc.noders.services:47956,4cad46992872f86da794f47ab662592bf9ca500a@135.181.79.242:57656,a2460ce7888ac53f13aa50ba0b8df9a553bd3332@65.109.84.153:57656,469fa43adad2b330bb8f88f8a0a03fad82f49fa8@95.217.230.235:57656,f2474b5e49e1399ee933cb28776dd9893941457d@135.181.210.46:57656,7073d7caaea03510fa9776aa4de362569ff09171@15.204.216.126:26656,53eb7a5d2ee95d6e73de260b35659ecf8ba087ef@95.214.54.196:57656,739d38ce19e4d2b22eb77016f91bf468e93c22af@37.252.186.230:26656,32fac46251436c7bee07b9aa5571f69b5fb765f4@193.34.212.164:57656,4efd5164f02c3af4247fc0292922af8d08a46ae6@51.89.1.16:26656,969e6b8df14860c3f5176cba6af317e3666f721d@82.223.17.254:26656,5c7b279674645bbfe34ff7ee8fb4f3769e5e478b@95.214.55.209:57656,1bcc2348282d98636bb73eff3fc39f5f06d4a3c2@65.109.53.24:58656,806bf9c5fe192736de4718a66fde56e45e03953c@65.109.84.235:20656"
+sed -i -e "/^\[p2p\]/,/^\[/{s/^[[:space:]]*persistent_peers *=.*/persistent_peers = \"$PEERS\"/}" $HOME/.pellcored/config/config.toml
+```
+### addrbook: (upd 1h)
+```bash copy
+wget -O $HOME/.pellcored/config/addrbook.json https://server-5.itrocket.net/testnet/pell/addrbook.json
+```
+### genesis:
+```bash copy
+wget -O $HOME/.pellcored/config/genesis.json https://server-5.itrocket.net/testnet/pell/genesis.json
+```
+
+# Snapshot
+ <b>updated every 4h | available 24/7 (every server stores last 2 snapshots)
+ height: 2486432 | 2h ago | 1496 blocks ago | size: 1.9GB | db: goleveldb</b>
+
+ ```bash copy
+ sudo systemctl stop pellcored
+cp $HOME/.pellcored/data/priv_validator_state.json $HOME/.pellcored/priv_validator_state.json.backup
+rm -rf $HOME/.pellcored/data
+curl https://server-5.itrocket.net/testnet/pell/pell_2025-05-25_2486432_snap.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.pellcored
+mv $HOME/.pellcored/priv_validator_state.json.backup $HOME/.pellcored/data/priv_validator_state.json
+sudo systemctl restart pellcored && sudo journalctl -u pellcored -f
+```
+
+
