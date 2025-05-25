@@ -1,4 +1,4 @@
-PM2_NAME := Explorer-stonegaze
+PM2_NAME := new-service
 
 install:
 	@echo "Installing dependencies..."
@@ -25,4 +25,4 @@ delete-next-folder:
 	@rm -rf .next
 	@echo "Delete success."
 
-restart: pull install delete-next-folder build restart-pm2
+restart: pull install build restart-pm2
